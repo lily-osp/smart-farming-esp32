@@ -1,12 +1,25 @@
 # Main Smart Farming Code
 
-This folder contains the main smart farming system code with all features and functionality.
+This folder contains the main smart farming system code organized for Arduino IDE compatibility.
+
+## Project Structure
+
+```
+MainCode/
+├── offline/                    # Offline version (standalone)
+│   ├── offline.ino            # Main offline sketch
+│   └── config.h               # Offline configuration
+├── online/                     # Online version (IoT with cloud)
+│   ├── online.ino             # Main online sketch
+│   └── config.h               # Online configuration
+└── README.md                  # This documentation
+```
 
 ## Files
 
-- `smart_farming_offline.ino` - Standalone version without internet connectivity
-- `smart_farming_online.ino` - IoT version with WiFi and cloud connectivity
-- `config.h` - Centralized configuration file
+- **Offline Version**: `offline/offline.ino` - Standalone version without internet connectivity
+- **Online Version**: `online/online.ino` - IoT version with WiFi and cloud connectivity
+- **Configuration Files**: Each version has its own `config.h` for modular configuration
 
 ## Prerequisites
 
@@ -21,14 +34,14 @@ Before using the main code:
 
 ### 1. Choose Your Version
 
-**Offline Version** (`smart_farming_offline.ino`):
+**Offline Version** (`offline/offline.ino`):
 - Local operation only
 - No internet required
 - Serial output for monitoring
 - LED status indicators
 - Automatic irrigation control
 
-**Online Version** (`smart_farming_online.ino`):
+**Online Version** (`online/online.ino`):
 - WiFi connectivity
 - Cloud data logging (ThingSpeak, Adafruit IO)
 - Web interface for remote monitoring
@@ -37,7 +50,9 @@ Before using the main code:
 
 ### 2. Configure System
 
-Edit `config.h` to match your hardware:
+Edit the appropriate `config.h` file to match your hardware:
+- **Offline Version**: Edit `offline/config.h`
+- **Online Version**: Edit `online/config.h`
 
 ```cpp
 // Display Configuration
@@ -63,10 +78,14 @@ Edit `config.h` to match your hardware:
 
 ### 3. Upload Code
 
-1. **Select Board**: ESP32 Dev Module
-2. **Select Port**: Your ESP32 COM port
-3. **Upload**: Upload the chosen version
-4. **Monitor**: Open Serial Monitor (115200 baud)
+1. **Open Arduino IDE**
+2. **Select Board**: ESP32 Dev Module
+3. **Select Port**: Your ESP32 COM port
+4. **Open Sketch**: 
+   - For offline: Open `offline/offline.ino`
+   - For online: Open `online/online.ino`
+5. **Upload**: Upload the chosen version
+6. **Monitor**: Open Serial Monitor (115200 baud)
 
 ## Configuration Examples
 

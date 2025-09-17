@@ -25,13 +25,20 @@ A comprehensive IoT-based smart farming solution that automates irrigation based
 ```
 smart_farming/
 ├── MainCode/                    # Main smart farming system
-│   ├── smart_farming_offline.ino    # Standalone version
-│   ├── smart_farming_online.ino     # IoT version with cloud
-│   ├── config.h                     # Configuration file
+│   ├── offline/                     # Offline version (standalone)
+│   │   ├── offline.ino              # Main offline sketch
+│   │   └── config.h                 # Offline configuration
+│   ├── online/                      # Online version (IoT with cloud)
+│   │   ├── online.ino               # Main online sketch
+│   │   └── config.h                 # Online configuration
 │   └── README.md                    # Main code documentation
-├── TestCode/                    # Hardware testing
-│   ├── hardware_test.ino            # Comprehensive hardware test
-│   └── README.md                    # Test code documentation
+├── TestCode/                    # Testing and validation
+│   ├── hardware/                    # Hardware testing
+│   │   ├── hardware_test.ino        # Comprehensive hardware test
+│   │   └── README.md                # Hardware test documentation
+│   └── communication/               # Communication testing
+│       ├── communication.ino        # Communication test suite
+│       └── README.md                # Communication test documentation
 ├── docs/                        # Web documentation
 │   ├── index.html               # Main documentation page
 │   ├── styles.css               # Custom CSS styles
@@ -41,7 +48,6 @@ smart_farming/
 ├── wiring_diagram.md           # Wiring instructions with Mermaid
 ├── libraries.txt              # Required Arduino libraries
 ├── LICENSE                     # MIT License
-├── .gitignore                 # Git ignore rules
 └── README.md                  # This file
 ```
 
@@ -181,7 +187,34 @@ lib_deps =
     adafruit/Adafruit IO Arduino@^5.0.0
 ```
 
-### Step 2: Hardware Assembly
+### Step 2: Arduino IDE Project Structure
+
+The project is organized to work seamlessly with Arduino IDE's expected structure:
+
+#### Opening Projects in Arduino IDE
+
+1. **Main Applications**:
+   - **Offline Version**: Open `MainCode/offline/offline.ino` for standalone operation
+   - **Online Version**: Open `MainCode/online/online.ino` for IoT operation with cloud connectivity
+
+2. **Test Applications**:
+   - **Hardware Test**: Open `TestCode/hardware/hardware_test.ino` to validate all hardware components
+   - **Communication Test**: Open `TestCode/communication/communication.ino` to test WiFi, cloud services, and web server
+
+3. **Configuration Files**:
+   - Each sketch has its own `config.h` file for easy customization
+   - Configuration is modular and version-specific
+
+#### Arduino IDE Workflow
+
+1. **Select Board**: ESP32 Dev Module
+2. **Select Port**: Your ESP32's COM port
+3. **Open Sketch**: Choose the appropriate .ino file
+4. **Configure**: Edit config.h if needed
+5. **Compile**: Verify code compiles without errors
+6. **Upload**: Flash to ESP32
+
+### Step 3: Hardware Assembly
 
 #### Basic Wiring Diagram
 

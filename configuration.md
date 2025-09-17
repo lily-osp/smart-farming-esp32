@@ -18,6 +18,36 @@ This comprehensive guide provides detailed information about all configuration o
 
 The Smart Farming System is designed with maximum modularity, allowing you to configure various components based on your specific needs, budget, and use case. Each configuration option has its own benefits and trade-offs.
 
+### Configuration File Structure
+
+The system uses separate configuration files for different versions:
+
+```
+MainCode/
+├── offline/
+│   └── config.h          # Offline version configuration
+└── online/
+    └── config.h          # Online version configuration
+```
+
+**Important**: Each version has its own `config.h` file. Make sure to edit the correct file:
+- **Offline Version**: Edit `MainCode/offline/config.h`
+- **Online Version**: Edit `MainCode/online/config.h`
+
+### Arduino IDE Workflow
+
+1. **Open Sketch**: Open the appropriate `.ino` file in Arduino IDE
+   - Offline: `MainCode/offline/offline.ino`
+   - Online: `MainCode/online/online.ino`
+
+2. **Edit Configuration**: Modify the `config.h` file in the same folder
+
+3. **Compile**: Verify the code compiles without errors
+
+4. **Upload**: Flash to your ESP32 board
+
+**Note**: Arduino IDE automatically includes the `config.h` file when you open the `.ino` file, as long as both files are in the same folder.
+
 ### Configuration Philosophy
 
 - **Modular Design**: Mix and match components as needed
