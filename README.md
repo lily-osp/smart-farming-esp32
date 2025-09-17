@@ -32,6 +32,11 @@ smart_farming/
 ├── TestCode/                    # Hardware testing
 │   ├── hardware_test.ino            # Comprehensive hardware test
 │   └── README.md                    # Test code documentation
+├── docs/                        # Web documentation
+│   ├── index.html               # Main documentation page
+│   ├── styles.css               # Custom CSS styles
+│   ├── script.js                # Interactive JavaScript
+│   └── README.md                # Documentation guide
 ├── wiring_diagram.md           # Wiring instructions with Mermaid
 ├── libraries.txt              # Required Arduino libraries
 ├── LICENSE                     # MIT License

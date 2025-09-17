@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Smart Farming System - Documentation</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                        accent: '#34d399',
+                        dark: '#1f2937',
+                        light: '#f9fafb'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <i class="fas fa-seedling text-primary text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-gray-900" data-en="ESP32 Smart Farming" data-id="Pertanian Cerdas ESP32">ESP32 Smart Farming</h1>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#overview" class="nav-link" data-en="Overview" data-id="Ringkasan">Overview</a>
+                    <a href="#hardware" class="nav-link" data-en="Hardware" data-id="Perangkat Keras">Hardware</a>
+                    <a href="#software" class="nav-link" data-en="Software" data-id="Perangkat Lunak">Software</a>
+                    <a href="#setup" class="nav-link" data-en="Setup" data-id="Pemasangan">Setup</a>
+                    <a href="#api" class="nav-link" data-en="API" data-id="API">API</a>
+                    <a href="#troubleshooting" class="nav-link" data-en="Support" data-id="Dukungan">Support</a>
+                    
+                    <!-- Language Switcher -->
+                    <div class="relative">
+                        <button id="langSwitcher" class="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-primary rounded-md transition-colors">
+                            <i class="fas fa-globe"></i>
+                            <span id="currentLang">EN</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="langDropdown" class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-200 hidden z-50">
+                            <button class="lang-option w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2" data-lang="en">
+                                <span class="text-lg">🇺🇸</span>
+                                <span>English</span>
+                            </button>
+                            <button class="lang-option w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2" data-lang="id">
+                                <span class="text-lg">🇮🇩</span>
+                                <span>Indonesia</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center space-x-2">
+                    <!-- Mobile Language Switcher -->
+                    <div class="relative">
+                        <button id="mobileLangSwitcher" class="flex items-center space-x-1 px-2 py-2 text-gray-600 hover:text-primary rounded-md transition-colors">
+                            <i class="fas fa-globe text-sm"></i>
+                            <span id="mobileCurrentLang" class="text-sm font-semibold">EN</span>
+                        </button>
+                        <div id="mobileLangDropdown" class="absolute right-0 mt-2 w-28 bg-white rounded-md shadow-lg border border-gray-200 hidden z-50">
+                            <button class="mobile-lang-option w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2" data-lang="en">
+                                <span class="text-sm">🇺🇸</span>
+                                <span class="text-xs">EN</span>
+                            </button>
+                            <button class="mobile-lang-option w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center space-x-2" data-lang="id">
+                                <span class="text-sm">🇮🇩</span>
+                                <span class="text-xs">ID</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hamburger Menu -->
+                    <button id="mobileMenuButton" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary transition-colors">
+                        <span class="sr-only" data-en="Open main menu" data-id="Buka menu utama">Open main menu</span>
+                        <i id="menuIcon" class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="mobileMenu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+                    <a href="#overview" class="mobile-nav-link block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors" data-en="Overview" data-id="Ringkasan">Overview</a>
+                    <a href="#hardware" class="mobile-nav-link block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors" data-en="Hardware" data-id="Perangkat Keras">Hardware</a>
+                    <a href="#software" class="mobile-nav-link block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors" data-en="Software" data-id="Perangkat Lunak">Software</a>
+                    <a href="#setup" class="mobile-nav-link block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors" data-en="Setup" data-id="Pemasangan">Setup</a>
+                    <a href="#api" class="mobile-nav-link block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors" data-en="API" data-id="API">API</a>
+                    <a href="#troubleshooting" class="mobile-nav-link block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors" data-en="Support" data-id="Dukungan">Support</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary to-secondary text-white py-12 md:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 leading-tight" data-en="ESP32 Smart Farming System" data-id="Sistem Pertanian Cerdas ESP32">ESP32 Smart Farming System</h1>
+            <p class="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 opacity-90 px-4" data-en="Automated irrigation with IoT connectivity and modular design" data-id="Irigasi otomatis dengan konektivitas IoT dan desain modular">Automated irrigation with IoT connectivity and modular design</p>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+                <a href="#quick-start" class="bg-white text-primary px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition text-center">
+                    <i class="fas fa-rocket mr-2"></i><span data-en="Quick Start" data-id="Mulai Cepat">Quick Start</span>
+                </a>
+                <a href="https://github.com/lily-osp/smart-farming-esp32" target="_blank" class="border-2 border-white text-white px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition text-center">
+                    <i class="fab fa-github mr-2"></i><span data-en="View on GitHub" data-id="Lihat di GitHub">View on GitHub</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quick-start" class="py-12 md:py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12" data-en="Quick Start Guide" data-id="Panduan Mulai Cepat">Quick Start Guide</h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div class="text-center p-6 bg-gray-50 rounded-lg">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-vial text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3" data-en="1. Test Hardware" data-id="1. Uji Perangkat Keras">1. Test Hardware</h3>
+                    <p class="text-gray-600" data-en="Run the hardware test code to verify all connections and components are working properly." data-id="Jalankan kode uji perangkat keras untuk memverifikasi semua koneksi dan komponen berfungsi dengan baik.">Run the hardware test code to verify all connections and components are working properly.</p>
+                </div>
+                <div class="text-center p-6 bg-gray-50 rounded-lg">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cogs text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3" data-en="2. Configure System" data-id="2. Konfigurasi Sistem">2. Configure System</h3>
+                    <p class="text-gray-600" data-en="Edit the configuration file to match your hardware setup and requirements." data-id="Edit file konfigurasi untuk menyesuaikan dengan setup perangkat keras dan kebutuhan Anda.">Edit the configuration file to match your hardware setup and requirements.</p>
+                </div>
+                <div class="text-center p-6 bg-gray-50 rounded-lg">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-upload text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3" data-en="3. Upload Code" data-id="3. Upload Kode">3. Upload Code</h3>
+                    <p class="text-gray-600" data-en="Choose between offline or online version and upload to your ESP32." data-id="Pilih antara versi offline atau online dan upload ke ESP32 Anda.">Choose between offline or online version and upload to your ESP32.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12" data-en="Project Overview" data-id="Ringkasan Proyek">Project Overview</h2>
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-6" data-en="Key Features" data-id="Fitur Utama">Key Features</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-tint text-primary text-xl mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="Automated Irrigation" data-id="Irigasi Otomatis">Automated Irrigation</h4>
+                                <p class="text-gray-600" data-en="Intelligent watering based on soil moisture levels with configurable thresholds." data-id="Penyiraman cerdas berdasarkan tingkat kelembaban tanah dengan ambang batas yang dapat dikonfigurasi.">Intelligent watering based on soil moisture levels with configurable thresholds.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-cloud text-primary text-xl mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="IoT Connectivity" data-id="Konektivitas IoT">IoT Connectivity</h4>
+                                <p class="text-gray-600" data-en="WiFi connectivity with dual cloud service integration (ThingSpeak & Adafruit IO)." data-id="Konektivitas WiFi dengan integrasi layanan cloud ganda (ThingSpeak & Adafruit IO).">WiFi connectivity with dual cloud service integration (ThingSpeak & Adafruit IO).</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-shield-alt text-primary text-xl mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="Safety Mechanisms" data-id="Mekanisme Keamanan">Safety Mechanisms</h4>
+                                <p class="text-gray-600" data-en="Watchdog timer, emergency stop, and pump runtime protection." data-id="Timer watchdog, tombol darurat, dan perlindungan waktu operasi pompa.">Watchdog timer, emergency stop, and pump runtime protection.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-puzzle-piece text-primary text-xl mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="Modular Design" data-id="Desain Modular">Modular Design</h4>
+                                <p class="text-gray-600" data-en="Flexible display options and configurable sensor combinations." data-id="Opsi tampilan yang fleksibel dan kombinasi sensor yang dapat dikonfigurasi.">Flexible display options and configurable sensor combinations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold mb-6" data-en="Project Structure" data-id="Struktur Proyek">Project Structure</h3>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <pre class="text-sm text-gray-700"><code>smart_farming/
+├── MainCode/                    # Main system
+│   ├── smart_farming_offline.ino
+│   ├── smart_farming_online.ino
+│   ├── config.h
+│   └── README.md
+├── TestCode/                    # Hardware testing
+│   ├── hardware_test.ino
+│   └── README.md
+├── docs/                        # Web documentation
+│   ├── index.html
+│   ├── styles.css
+│   └── script.js
+├── wiring_diagram.md
+├── libraries.txt
+├── LICENSE
+└── README.md</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hardware Section -->
+    <section id="hardware" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12" data-en="Hardware Requirements" data-id="Persyaratan Perangkat Keras">Hardware Requirements</h2>
+            
+            <!-- Essential Components -->
+            <div class="mb-12">
+                <h3 class="text-2xl font-semibold mb-6" data-en="Essential Components" data-id="Komponen Utama">Essential Components</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-microchip text-primary text-2xl mr-3"></i>
+                            <h4 class="text-lg font-semibold" data-en="ESP32 Development Board" data-id="Papan Pengembangan ESP32">ESP32 Development Board</h4>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="ESP32-WROOM-32 or similar" data-id="ESP32-WROOM-32 atau sejenisnya">ESP32-WROOM-32 or similar</p>
+                        <p class="text-sm text-gray-500" data-en="Main controller with WiFi and ADC support" data-id="Kontroler utama dengan dukungan WiFi dan ADC">Main controller with WiFi and ADC support</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-leaf text-primary text-2xl mr-3"></i>
+                            <h4 class="text-lg font-semibold" data-en="Soil Moisture Sensor" data-id="Sensor Kelembaban Tanah">Soil Moisture Sensor</h4>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="Analog capacitive sensor" data-id="Sensor kapasitif analog">Analog capacitive sensor</p>
+                        <p class="text-sm text-gray-500" data-en="0-3.3V output range" data-id="Rentang output 0-3.3V">0-3.3V output range</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-thermometer-half text-primary text-2xl mr-3"></i>
+                            <h4 class="text-lg font-semibold" data-en="DHT Sensor" data-id="Sensor DHT">DHT Sensor</h4>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="DHT11 or DHT22" data-id="DHT11 atau DHT22">DHT11 or DHT22</p>
+                        <p class="text-sm text-gray-500" data-en="Temperature and humidity monitoring" data-id="Monitoring suhu dan kelembaban">Temperature and humidity monitoring</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-exchange-alt text-primary text-2xl mr-3"></i>
+                            <h4 class="text-lg font-semibold" data-en="Relay Module" data-id="Modul Relay">Relay Module</h4>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="5V SPDT relay" data-id="Relay SPDT 5V">5V SPDT relay</p>
+                        <p class="text-sm text-gray-500" data-en="Pump control with current handling" data-id="Kontrol pompa dengan penanganan arus">Pump control with current handling</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-tint text-primary text-2xl mr-3"></i>
+                            <h4 class="text-lg font-semibold" data-en="Water Pump" data-id="Pompa Air">Water Pump</h4>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="12V DC submersible" data-id="Submersible DC 12V">12V DC submersible</p>
+                        <p class="text-sm text-gray-500" data-en="Irrigation system" data-id="Sistem irigasi">Irrigation system</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-bolt text-primary text-2xl mr-3"></i>
+                            <h4 class="text-lg font-semibold" data-en="Power Supply" data-id="Catu Daya">Power Supply</h4>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="5V/3.3V adapter" data-id="Adaptor 5V/3.3V">5V/3.3V adapter</p>
+                        <p class="text-sm text-gray-500" data-en="Minimum 2A capacity" data-id="Kapasitas minimum 2A">Minimum 2A capacity</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional Components -->
+            <div>
+                <h3 class="text-2xl font-semibold mb-6" data-en="Optional Components" data-id="Komponen Opsional">Optional Components</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-tv text-primary text-xl mr-3"></i>
+                            <h4 class="font-semibold" data-en="LCD Display" data-id="Tampilan LCD">LCD Display</h4>
+                        </div>
+                        <p class="text-sm text-gray-600" data-en="1602 or 2004 I2C" data-id="1602 atau 2004 I2C">1602 or 2004 I2C</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-lightbulb text-primary text-xl mr-3"></i>
+                            <h4 class="font-semibold" data-en="LEDs" data-id="LED">LEDs</h4>
+                        </div>
+                        <p class="text-sm text-gray-600" data-en="Status indicators" data-id="Indikator status">Status indicators</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-sliders-h text-primary text-xl mr-3"></i>
+                            <h4 class="font-semibold" data-en="Rotary Encoder" data-id="Rotary Encoder">Rotary Encoder</h4>
+                        </div>
+                        <p class="text-sm text-gray-600" data-en="Menu control" data-id="Kontrol menu">Menu control</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-stop text-primary text-xl mr-3"></i>
+                            <h4 class="font-semibold" data-en="Emergency Stop" data-id="Tombol Darurat">Emergency Stop</h4>
+                        </div>
+                        <p class="text-sm text-gray-600" data-en="Safety button" data-id="Tombol keamanan">Safety button</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Software Section -->
+    <section id="software" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12" data-en="Software Features" data-id="Fitur Perangkat Lunak">Software Features</h2>
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Offline Version -->
+                <div class="bg-white p-8 rounded-lg shadow">
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-desktop text-primary text-3xl mr-4"></i>
+                        <h3 class="text-2xl font-semibold" data-en="Offline Version" data-id="Versi Offline">Offline Version</h3>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="Local operation without internet" data-id="Operasi lokal tanpa internet">Local operation without internet</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="Serial output for monitoring" data-id="Output serial untuk monitoring">Serial output for monitoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="LED status indicators" data-id="Indikator status LED">LED status indicators</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="Automatic irrigation control" data-id="Kontrol irigasi otomatis">Automatic irrigation control</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="Fail-safe mechanisms" data-id="Mekanisme fail-safe">Fail-safe mechanisms</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Online Version -->
+                <div class="bg-white p-8 rounded-lg shadow">
+                    <div class="flex items-center mb-6">
+                        <i class="fas fa-wifi text-primary text-3xl mr-4"></i>
+                        <h3 class="text-2xl font-semibold" data-en="Online Version" data-id="Versi Online">Online Version</h3>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="WiFi connectivity" data-id="Konektivitas WiFi">WiFi connectivity</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="Cloud data logging" data-id="Pencatatan data cloud">Cloud data logging</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="Web interface" data-id="Antarmuka web">Web interface</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="OTA firmware updates" data-id="Update firmware OTA">OTA firmware updates</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                            <span data-en="JSON API for integration" data-id="API JSON untuk integrasi">JSON API for integration</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Configuration Options -->
+            <div class="mt-12">
+                <h3 class="text-2xl font-semibold text-center mb-8" data-en="Configuration Options" data-id="Opsi Konfigurasi">Configuration Options</h3>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="bg-primary text-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tv text-3xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3" data-en="Display Options" data-id="Opsi Tampilan">Display Options</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li data-en="LCD 1602 (16x2)" data-id="LCD 1602 (16x2)">LCD 1602 (16x2)</li>
+                            <li data-en="LCD 2004 (20x4)" data-id="LCD 2004 (20x4)">LCD 2004 (20x4)</li>
+                            <li data-en="Headless (Serial only)" data-id="Tanpa Layar (Serial saja)">Headless (Serial only)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-primary text-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-sliders-h text-3xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3" data-en="Control Options" data-id="Opsi Kontrol">Control Options</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li data-en="Rotary Encoder" data-id="Rotary Encoder">Rotary Encoder</li>
+                            <li data-en="Potentiometer" data-id="Potensiometer">Potentiometer</li>
+                            <li data-en="Automated Only" data-id="Otomatis Saja">Automated Only</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-primary text-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-thermometer-half text-3xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3" data-en="Sensor Options" data-id="Opsi Sensor">Sensor Options</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li data-en="DHT11" data-id="DHT11">DHT11</li>
+                            <li data-en="DHT22" data-id="DHT22">DHT22</li>
+                            <li data-en="None (Soil only)" data-id="Tidak Ada (Tanah saja)">None (Soil only)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Setup Section -->
+    <section id="setup" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12" data-en="Setup Guide" data-id="Panduan Pemasangan">Setup Guide</h2>
+            
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Hardware Testing" data-id="Uji Perangkat Keras">Hardware Testing</h3>
+                        <p class="text-gray-600 mb-4" data-en="Start by running the hardware test code to verify all connections and components." data-id="Mulai dengan menjalankan kode uji perangkat keras untuk memverifikasi semua koneksi dan komponen.">Start by running the hardware test code to verify all connections and components.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm">TestCode/hardware_test.ino</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Install Libraries" data-id="Instal Pustaka">Install Libraries</h3>
+                        <p class="text-gray-600 mb-4" data-en="Install all required libraries via Arduino IDE Library Manager." data-id="Instal semua pustaka yang diperlukan melalui Arduino IDE Library Manager.">Install all required libraries via Arduino IDE Library Manager.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm" data-en="See libraries.txt for complete list" data-id="Lihat libraries.txt untuk daftar lengkap">See libraries.txt for complete list</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Configure System" data-id="Konfigurasi Sistem">Configure System</h3>
+                        <p class="text-gray-600 mb-4" data-en="Edit the configuration file to match your hardware setup." data-id="Edit file konfigurasi untuk menyesuaikan dengan setup perangkat keras Anda.">Edit the configuration file to match your hardware setup.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm">MainCode/config.h</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">4</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Upload Code" data-id="Upload Kode">Upload Code</h3>
+                        <p class="text-gray-600 mb-4" data-en="Choose between offline or online version and upload to your ESP32." data-id="Pilih antara versi offline atau online dan upload ke ESP32 Anda.">Choose between offline or online version and upload to your ESP32.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm">MainCode/smart_farming_offline.ino or smart_farming_online.ino</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">5</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Monitor System" data-id="Monitor Sistem">Monitor System</h3>
+                        <p class="text-gray-600 mb-4" data-en="Use serial output or web interface to monitor system operation." data-id="Gunakan output serial atau antarmuka web untuk memantau operasi sistem.">Use serial output or web interface to monitor system operation.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm" data-en="Serial Monitor (115200 baud) or Web Interface" data-id="Serial Monitor (115200 baud) atau Antarmuka Web">Serial Monitor (115200 baud) or Web Interface</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Section -->
+    <section id="api" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12" data-en="API Documentation" data-id="Dokumentasi API">API Documentation</h2>
+            
+            <div class="bg-white p-8 rounded-lg shadow">
+                <h3 class="text-2xl font-semibold mb-6" data-en="REST API Endpoints" data-id="Endpoint REST API">REST API Endpoints</h3>
+                
+                <div class="space-y-6">
+                    <!-- GET /api/status -->
+                    <div class="border-l-4 border-primary pl-4">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg font-mono">/api/status</code>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="Get current system status and sensor readings" data-id="Dapatkan status sistem saat ini dan pembacaan sensor">Get current system status and sensor readings</p>
+                        <div class="bg-gray-50 p-3 rounded text-sm">
+                            <pre><code>{
+  "systemOK": true,
+  "soilMoisture": 45,
+  "temperature": 25.3,
+  "humidity": 60.2,
+  "pumpActive": false,
+  "uptime": 3600
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- POST /api/pump -->
+                    <div class="border-l-4 border-primary pl-4">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg font-mono">/api/pump</code>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="Control pump manually" data-id="Kontrol pompa secara manual">Control pump manually</p>
+                        <div class="bg-gray-50 p-3 rounded text-sm">
+                            <pre><code>{
+  "action": "start" | "stop",
+  "duration": 30
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- GET /api/config -->
+                    <div class="border-l-4 border-primary pl-4">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg font-mono">/api/config</code>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="Get current system configuration" data-id="Dapatkan konfigurasi sistem saat ini">Get current system configuration</p>
+                    </div>
+
+                    <!-- POST /api/config -->
+                    <div class="border-l-4 border-primary pl-4">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg font-mono">/api/config</code>
+                        </div>
+                        <p class="text-gray-600 mb-2" data-en="Update system configuration" data-id="Perbarui konfigurasi sistem">Update system configuration</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Troubleshooting Section -->
+    <section id="troubleshooting" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12" data-en="Troubleshooting & Support" data-id="Pemecahan Masalah & Dukungan">Troubleshooting & Support</h2>
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Common Issues -->
+                <div>
+                    <h3 class="text-2xl font-semibold mb-6" data-en="Common Issues" data-id="Masalah Umum">Common Issues</h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2" data-en="System Not Starting" data-id="Sistem Tidak Berjalan">System Not Starting</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li data-en="• Check power supply (minimum 2A)" data-id="• Periksa catu daya (minimum 2A)">• Check power supply (minimum 2A)</li>
+                                <li data-en="• Verify all connections" data-id="• Verifikasi semua koneksi">• Verify all connections</li>
+                                <li data-en="• Run hardware test first" data-id="• Jalankan uji perangkat keras terlebih dahulu">• Run hardware test first</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2" data-en="Sensors Not Reading" data-id="Sensor Tidak Membaca">Sensors Not Reading</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li data-en="• Check wiring connections" data-id="• Periksa koneksi kabel">• Check wiring connections</li>
+                                <li data-en="• Verify power supply voltage" data-id="• Verifikasi tegangan catu daya">• Verify power supply voltage</li>
+                                <li data-en="• Check sensor configuration" data-id="• Periksa konfigurasi sensor">• Check sensor configuration</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2" data-en="WiFi Not Connecting" data-id="WiFi Tidak Terhubung">WiFi Not Connecting</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li data-en="• Check WiFi credentials" data-id="• Periksa kredensial WiFi">• Check WiFi credentials</li>
+                                <li data-en="• Verify signal strength" data-id="• Verifikasi kekuatan sinyal">• Verify signal strength</li>
+                                <li data-en="• Ensure 2.4GHz network" data-id="• Pastikan jaringan 2.4GHz">• Ensure 2.4GHz network</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h3 class="text-2xl font-semibold mb-6" data-en="Get Support" data-id="Dapatkan Dukungan">Get Support</h3>
+                    <div class="space-y-4">
+                        <a href="https://github.com/lily-osp/smart-farming-esp32" target="_blank" class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fab fa-github text-primary text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="GitHub Repository" data-id="Repositori GitHub">GitHub Repository</h4>
+                                <p class="text-sm text-gray-600" data-en="Report issues and contribute" data-id="Laporkan masalah dan berkontribusi">Report issues and contribute</p>
+                            </div>
+                        </a>
+                        
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <i class="fas fa-book text-primary text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="Documentation" data-id="Dokumentasi">Documentation</h4>
+                                <p class="text-sm text-gray-600" data-en="Comprehensive guides and examples" data-id="Panduan komprehensif dan contoh">Comprehensive guides and examples</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                            <i class="fas fa-code text-primary text-2xl mr-4"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="Open Source" data-id="Sumber Terbuka">Open Source</h4>
+                                <p class="text-sm text-gray-600" data-en="MIT License - Free to use and modify" data-id="Lisensi MIT - Gratis digunakan dan dimodifikasi">MIT License - Free to use and modify</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-seedling text-primary text-2xl mr-3"></i>
+                        <h3 class="text-xl font-bold" data-en="ESP32 Smart Farming" data-id="Pertanian Cerdas ESP32">ESP32 Smart Farming</h3>
+                    </div>
+                    <p class="text-gray-400" data-en="Automated irrigation system with IoT connectivity and modular design." data-id="Sistem irigasi otomatis dengan konektivitas IoT dan desain modular.">Automated irrigation system with IoT connectivity and modular design.</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4" data-en="Quick Links" data-id="Tautan Cepat">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#overview" class="hover:text-white transition" data-en="Overview" data-id="Ringkasan">Overview</a></li>
+                        <li><a href="#hardware" class="hover:text-white transition" data-en="Hardware" data-id="Perangkat Keras">Hardware</a></li>
+                        <li><a href="#software" class="hover:text-white transition" data-en="Software" data-id="Perangkat Lunak">Software</a></li>
+                        <li><a href="#setup" class="hover:text-white transition" data-en="Setup" data-id="Pemasangan">Setup</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4" data-en="Resources" data-id="Sumber Daya">Resources</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="https://github.com/lily-osp/smart-farming-esp32" target="_blank" class="hover:text-white transition" data-en="GitHub Repository" data-id="Repositori GitHub">GitHub Repository</a></li>
+                        <li><a href="#" class="hover:text-white transition" data-en="Documentation" data-id="Dokumentasi">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition" data-en="License" data-id="Lisensi">License</a></li>
+                        <li><a href="#" class="hover:text-white transition" data-en="Contributing" data-id="Kontribusi">Contributing</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p data-en="&copy; 2024 ESP32 Smart Farming System. Licensed under MIT License." data-id="&copy; 2024 Sistem Pertanian Cerdas ESP32. Dilindungi oleh Lisensi MIT.">&copy; 2024 ESP32 Smart Farming System. Licensed under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
