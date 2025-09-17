@@ -20,6 +20,25 @@ A comprehensive IoT-based smart farming solution that automates irrigation based
 - [FAQ](#faq)
 - [Contributing](#contributing)
 
+## Project Structure
+
+```
+smart_farming/
+├── MainCode/                    # Main smart farming system
+│   ├── smart_farming_offline.ino    # Standalone version
+│   ├── smart_farming_online.ino     # IoT version with cloud
+│   ├── config.h                     # Configuration file
+│   └── README.md                    # Main code documentation
+├── TestCode/                    # Hardware testing
+│   ├── hardware_test.ino            # Comprehensive hardware test
+│   └── README.md                    # Test code documentation
+├── wiring_diagram.md           # Wiring instructions with Mermaid
+├── libraries.txt              # Required Arduino libraries
+├── LICENSE                     # MIT License
+├── .gitignore                 # Git ignore rules
+└── README.md                  # This file
+```
+
 ## Project Overview
 
 This smart farming system is designed to automate irrigation processes while providing comprehensive monitoring capabilities. It combines local sensor data with cloud connectivity to create a robust, scalable solution for modern agriculture.
@@ -1357,4 +1376,4 @@ This project is open source and available under the MIT License. See the LICENSE
 
 **Happy Farming!** 
 
-For questions, issues, or contributions, please visit our [GitHub repository](https://github.com/your-repo/smart-farming-esp32).
+For questions, issues, or contributions, please visit our [GitHub repository](https://github.com/lily-osp/smart-farming-esp32).
