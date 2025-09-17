@@ -15,7 +15,7 @@
  * 8. Control System Test (if enabled)
  * 9. Emergency Stop Test (if enabled)
  * 
- * Author: Smart Farming Demo
+ * Author: Azzar Budiyanto
  * Version: 1.0.0
  * Date: 2024
  */

@@ -1,6 +1,6 @@
 /*
  * Smart Farming Configuration File
- * ESP32 Smart Farming Demo
+ * ESP32 Modular Smart Farming
  * 
  * This file contains all configurable parameters for the smart farming system
  * Modify these values according to your hardware setup and requirements
@@ -66,8 +66,6 @@
 // Control-specific Configuration
 #if CONTROL_TYPE == CONTROL_POTENTIOMETER
   #define POTENTIOMETER_PIN 34  // ADC1_CH6 - GPIO34 for potentiometer
-  #define POTENTIOMETER_MIN_THRESHOLD 10   // Minimum soil moisture threshold (%)
-  #define POTENTIOMETER_MAX_THRESHOLD 80  // Maximum soil moisture threshold (%)
   #define POTENTIOMETER_UPDATE_INTERVAL 500  // Update interval (ms)
 #elif CONTROL_TYPE == CONTROL_ROTARY_ENCODER
   #define ENCODER_CLK_PIN 16    // GPIO16 - Clock pin
@@ -77,6 +75,10 @@
   #define ENCODER_STEP_SIZE 1    // Step size for parameter adjustment
   #define MENU_TIMEOUT 30000     // Menu timeout (ms)
 #endif
+
+// Common threshold limits for all control types
+#define POTENTIOMETER_MIN_THRESHOLD 10   // Minimum soil moisture threshold (%)
+#define POTENTIOMETER_MAX_THRESHOLD 80  // Maximum soil moisture threshold (%)
 
 // Control Features
 #define CONTROL_ENABLED (CONTROL_TYPE != CONTROL_NONE)
@@ -88,31 +90,31 @@
 // =============================================================================
 
 // DHT Sensor Selection
-// Options: DHT_NONE, DHT11, DHT22
-#define DHT_SENSOR_TYPE DHT22
+// Options: DHT_NONE, DHT_TYPE_11, DHT_TYPE_22
+#define DHT_SENSOR_TYPE DHT_TYPE_22
 
 // DHT Sensor Type Definitions
 #define DHT_NONE 0
-#define DHT11 1
-#define DHT22 2
+#define DHT_TYPE_11 1
+#define DHT_TYPE_22 2
 
 // LDR Sensor Selection
-// Options: LDR_NONE, LDR_ENABLED
+// Options: LDR_NONE, LDR_TYPE_ENABLED
 #define LDR_SENSOR_TYPE LDR_NONE
 
 // LDR Sensor Type Definitions
 #define LDR_NONE 0
-#define LDR_ENABLED 1
+#define LDR_TYPE_ENABLED 1
 
 // Sensor Pins
 #define SOIL_MOISTURE_PIN 36  // ADC1_CH0
 #define LDR_PIN 39            // ADC1_CH3 - GPIO39 for LDR sensor
 
 // DHT Sensor Configuration (conditional)
-#if DHT_SENSOR_TYPE == DHT11
+#if DHT_SENSOR_TYPE == DHT_TYPE_11
   #define DHT_PIN 5
   #define DHT_TYPE DHT11
-#elif DHT_SENSOR_TYPE == DHT22
+#elif DHT_SENSOR_TYPE == DHT_TYPE_22
   #define DHT_PIN 5
   #define DHT_TYPE DHT22
 #else

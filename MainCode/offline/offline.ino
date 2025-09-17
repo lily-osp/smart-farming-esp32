@@ -1,10 +1,10 @@
 /*
- * Smart Farming System - Online Version
- * ESP32 Smart Farming Demo with IoT Connectivity
+ * Smart Farming System - Offline Version
+ * ESP32 Modular Smart Farming
  * 
- * This version extends the offline version with internet connectivity
- * Features: All offline features plus WiFi connectivity, cloud data transmission,
- * remote monitoring, web interface, and OTA updates
+ * This version provides local operation without internet connectivity
+ * Features: Soil moisture monitoring, temperature/humidity sensing,
+ * automated irrigation control, LCD display, and LED status indicators
  * 
  * Hardware Requirements:
  * - ESP32 Development Board
@@ -13,20 +13,13 @@
  * - Relay Module
  * - LCD 1602 with I2C Backpack
  * - LEDs for status indication
- * - WiFi connection
  * 
- * Author: Smart Farming Demo
+ * Author: Azzar Budiyanto
  * Version: 1.0.0
  * Date: 2024
  */
 
 #include "config.h"
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <WebServer.h>
-#include <ArduinoOTA.h>
-#include <ArduinoJson.h>
-#include <AdafruitIO_WiFi.h>
 #include <esp_task_wdt.h>
 #include <Arduino.h>
 
@@ -53,12 +46,6 @@
   DHT dht(DHT_PIN, DHT_TYPE);
 #endif
 
-// Web Server Object
-WebServer server(WEB_SERVER_PORT);
-
-// Adafruit IO Object
-AdafruitIO_WiFi io(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, WIFI_SSID, WIFI_PASSWORD);
-
 // System State Variables
 struct SystemState {
   float temperature = 0.0;
@@ -69,24 +56,18 @@ struct SystemState {
   int lightLevelPercent = 0;
   bool pumpActive = false;
   bool systemOK = true;
-  bool wifiConnected = false;
   bool emergencyStop = false;
   unsigned long lastIrrigation = 0;
   unsigned long pumpStartTime = 0;
   int dailyIrrigations = 0;
   unsigned long lastSensorRead = 0;
   unsigned long lastDisplayUpdate = 0;
-  unsigned long lastDataTransmission = 0;
-  unsigned long lastWiFiCheck = 0;
   int displayScreen = 0;
   int sensorErrors = 0;
-  int transmissionErrors = 0;
-  int adafruitIOErrors = 0;
   int recoveryAttempts = 0;
   unsigned long lastErrorCheck = 0;
   unsigned long lastWatchdogFeed = 0;
-  String lastTransmissionStatus = "Not attempted";
-  String lastAdafruitIOStatus = "Not attempted";
+  int adjustedThreshold = SOIL_MOISTURE_THRESHOLD;  // Adjustable soil moisture threshold
   
   // Control System State
   #if CONTROL_TYPE == CONTROL_ROTARY_ENCODER
@@ -121,32 +102,6 @@ struct SensorValidation {
   int disconnectCount = 0;
 } sensorValidation;
 
-// WiFi and Network Variables
-unsigned long wifiReconnectAttempts = 0;
-const int maxWifiReconnectAttempts = 10;
-bool otaEnabled = false;
-
-// Adafruit IO Feed Objects
-AdafruitIO_Feed *temperatureFeed;
-AdafruitIO_Feed *humidityFeed;
-AdafruitIO_Feed *soilMoistureFeed;
-AdafruitIO_Feed *lightLevelFeed;
-AdafruitIO_Feed *pumpStatusFeed;
-AdafruitIO_Feed *irrigationCountFeed;
-
-// Data Logging
-struct DataLog {
-  unsigned long timestamp;
-  float temperature;
-  float humidity;
-  int soilMoisturePercent;
-  bool pumpActive;
-  int dailyIrrigations;
-} dataLog[LOG_BUFFER_SIZE];
-
-int logIndex = 0;
-bool logBufferFull = false;
-
 // Timing Variables
 unsigned long currentTime = 0;
 unsigned long lastHeartbeat = 0;
@@ -155,31 +110,31 @@ unsigned long lastHeartbeat = 0;
 // FUNCTION DECLARATIONS
 // =============================================================================
 
-// Core System Functions
 void initializeSystem();
 void initializeSensors();
 void initializeDisplay();
 void initializeActuators();
-void initializeWiFi();
-void initializeAdafruitIO();
-void initializeOTA();
-void initializeWebServer();
-void initializeWatchdog();
-
-// Sensor and Control Functions
 void readSensors();
-void controlIrrigation();
-void startIrrigation();
-void stopIrrigation();
-
-// Display Functions
 void updateDisplay();
+void controlIrrigation();
+void updateLEDs();
+void checkSystemStatus();
+void handleErrors();
+void emergencyStop();
+void initializeWatchdog();
+void feedWatchdog();
+void validateSensorReadings();
+bool isSensorReadingValid(float value, float minVal, float maxVal, bool enabled);
+bool checkSensorConsistency(int readings[], int newReading);
+void attemptSystemRecovery();
+void checkPumpRuntime();
 void displaySensorData();
 void displaySystemStatus();
 void displayIrrigationInfo();
-void displayWiFiStatus();
 void displayAllInfo();  // For LCD 2004
 void outputToSerial();  // For no display mode
+void logSystemData();
+void performHeartbeat();
 
 // Control Functions
 void initializeControl();
@@ -188,38 +143,8 @@ void handleRotaryEncoder();
 void handlePotentiometer();
 void displayMenu();
 void displayParameterAdjustment();
-void adjustParameter(int direction);
 void saveSettings();
 void loadSettings();
-
-// Network Functions
-void checkWiFiConnection();
-void transmitDataToCloud();
-void transmitDataToAdafruitIO();
-void handleWebRequests();
-void emergencyStop();
-void feedWatchdog();
-void validateSensorReadings();
-bool isSensorReadingValid(float value, float minVal, float maxVal, bool enabled);
-bool checkSensorConsistency(int readings[], int newReading);
-void attemptSystemRecovery();
-void checkPumpRuntime();
-void handleRoot();
-void handleAPI();
-void handleControl();
-void handleStatus();
-void handleOTA();
-
-// LED and Status Functions
-void updateLEDs();
-void checkSystemStatus();
-void handleErrors();
-void performHeartbeat();
-
-// Data Management
-void logSystemData();
-void clearDataLog();
-String getSystemStatusJSON();
 
 // =============================================================================
 // SETUP FUNCTION
@@ -231,13 +156,16 @@ void setup() {
   delay(1000);
   
   Serial.println("========================================");
-  Serial.println("ESP32 Smart Farming System - Online");
+  Serial.println("ESP32 Smart Farming System - Offline");
   Serial.println("Version: " + String(FIRMWARE_VERSION));
   Serial.println("Build Date: " + String(BUILD_DATE) + " " + String(BUILD_TIME));
   Serial.println("========================================");
   
   // Initialize System Components
   initializeSystem();
+  
+  // Initialize Watchdog Timer
+  initializeWatchdog();
   
   Serial.println("System initialization complete!");
   Serial.println("Starting main loop...");
@@ -265,14 +193,6 @@ void loop() {
     checkPumpRuntime();
   }
   
-  // Handle web server requests
-  server.handleClient();
-  
-  // Handle OTA updates
-  if (otaEnabled) {
-    ArduinoOTA.handle();
-  }
-  
   // Read sensors at regular intervals
   if (currentTime - systemState.lastSensorRead >= SENSOR_READ_INTERVAL) {
     readSensors();
@@ -295,29 +215,6 @@ void loop() {
   
   // Update LED status indicators
   updateLEDs();
-  
-  // Check WiFi connection
-  if (currentTime - systemState.lastWiFiCheck >= WIFI_RECONNECT_INTERVAL) {
-    checkWiFiConnection();
-    systemState.lastWiFiCheck = currentTime;
-  }
-  
-  // Transmit data to cloud services
-  if (systemState.wifiConnected && 
-      currentTime - systemState.lastDataTransmission >= DATA_TRANSMISSION_INTERVAL) {
-    
-    // Transmit to ThingSpeak
-    if (THINGSPEAK_ENABLED) {
-      transmitDataToCloud();
-    }
-    
-    // Transmit to Adafruit IO
-    if (ADAFRUIT_IO_ENABLED) {
-      transmitDataToAdafruitIO();
-    }
-    
-    systemState.lastDataTransmission = currentTime;
-  }
   
   // Check system status and handle errors
   if (currentTime - systemState.lastErrorCheck >= STATUS_CHECK_INTERVAL) {
@@ -362,31 +259,11 @@ void initializeSystem() {
   // Initialize control system
   initializeControl();
   
-  // Initialize WiFi
-  initializeWiFi();
-  
-  // Initialize Adafruit IO
-  initializeAdafruitIO();
-  
-  // Initialize OTA
-  initializeOTA();
-  
-  // Initialize web server
-  initializeWebServer();
-  
-  // Initialize Watchdog Timer
-  initializeWatchdog();
-  
   // Initialize timing variables
   systemState.lastSensorRead = 0;
   systemState.lastDisplayUpdate = 0;
-  systemState.lastDataTransmission = 0;
-  systemState.lastWiFiCheck = 0;
   systemState.lastErrorCheck = 0;
   lastHeartbeat = 0;
-  
-  // Clear data log
-  clearDataLog();
   
   Serial.println("System components initialized successfully!");
 }
@@ -435,12 +312,12 @@ void initializeDisplay() {
     lcd.print("Smart Farming");
     #if DISPLAY_TYPE == DISPLAY_LCD_2004
       lcd.setCursor(0, 1);
-      lcd.print("Online Mode");
+      lcd.print("Offline Mode");
       lcd.setCursor(0, 2);
       lcd.print("Initializing...");
     #else
       lcd.setCursor(0, 1);
-      lcd.print("Online Mode");
+      lcd.print("Initializing...");
     #endif
     
     delay(2000);
@@ -472,137 +349,6 @@ void initializeActuators() {
   digitalWrite(LED_BLUE_PIN, LOW);
   
   Serial.println("Actuators initialized successfully!");
-}
-
-void initializeWiFi() {
-  Serial.println("Initializing WiFi connection...");
-  
-  // Set WiFi mode
-  WiFi.mode(WIFI_STA);
-  
-  // Begin WiFi connection
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  
-  // Wait for connection
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-  
-  if (WiFi.status() == WL_CONNECTED) {
-    systemState.wifiConnected = true;
-    Serial.println();
-    Serial.println("WiFi connected successfully!");
-    Serial.println("IP address: " + WiFi.localIP().toString());
-    Serial.println("Signal strength: " + String(WiFi.RSSI()) + " dBm");
-  } else {
-    systemState.wifiConnected = false;
-    Serial.println();
-    Serial.println("WiFi connection failed!");
-    Serial.println("System will operate in offline mode");
-  }
-}
-
-void initializeAdafruitIO() {
-  if (!ADAFRUIT_IO_ENABLED) {
-    Serial.println("Adafruit IO disabled in configuration");
-    return;
-  }
-  
-  Serial.println("Initializing Adafruit IO connection...");
-  
-  // Initialize Adafruit IO feeds
-  temperatureFeed = io.feed(ADAFRUIT_IO_TEMPERATURE_FEED);
-  humidityFeed = io.feed(ADAFRUIT_IO_HUMIDITY_FEED);
-  soilMoistureFeed = io.feed(ADAFRUIT_IO_SOIL_MOISTURE_FEED);
-  lightLevelFeed = io.feed(ADAFRUIT_IO_LIGHT_LEVEL_FEED);
-  pumpStatusFeed = io.feed(ADAFRUIT_IO_PUMP_STATUS_FEED);
-  irrigationCountFeed = io.feed(ADAFRUIT_IO_IRRIGATION_COUNT_FEED);
-  
-  // Connect to Adafruit IO
-  Serial.println("Connecting to Adafruit IO...");
-  io.connect();
-  
-  // Wait for connection
-  int attempts = 0;
-  while (io.status() < AIO_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-  
-  if (io.status() == AIO_CONNECTED) {
-    Serial.println();
-    Serial.println("Adafruit IO connected successfully!");
-  } else {
-    Serial.println();
-    Serial.println("Adafruit IO connection failed!");
-    Serial.println("Status: " + String(io.statusText()));
-  }
-}
-
-void initializeOTA() {
-  Serial.println("Initializing OTA updates...");
-  
-  // Configure OTA
-  ArduinoOTA.setHostname(OTA_HOSTNAME);
-  ArduinoOTA.setPassword(OTA_PASSWORD);
-  
-  ArduinoOTA.onStart([]() {
-    String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
-    Serial.println("Start updating " + type);
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("OTA Update");
-    lcd.setCursor(0, 1);
-    lcd.print("In Progress");
-  });
-  
-  ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("OTA Update");
-    lcd.setCursor(0, 1);
-    lcd.print("Complete");
-  });
-  
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
-  
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed");
-  });
-  
-  ArduinoOTA.begin();
-  otaEnabled = true;
-  
-  Serial.println("OTA updates initialized successfully!");
-}
-
-void initializeWebServer() {
-  Serial.println("Initializing web server...");
-  
-  // Configure web server routes
-  server.on("/", handleRoot);
-  server.on("/api", handleAPI);
-  server.on("/control", HTTP_POST, handleControl);
-  server.on("/status", handleStatus);
-  server.on("/ota", handleOTA);
-  
-  // Start web server
-  server.begin();
-  
-  Serial.println("Web server initialized successfully!");
-  Serial.println("Web interface available at: http://" + WiFi.localIP().toString());
 }
 
 // =============================================================================
@@ -680,6 +426,7 @@ void readSensors() {
     Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
     Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
     Serial.println("  Soil Moisture: " + String(soilMoisturePercent) + "% (Valid: " + String(sensorValidation.soilMoistureValid ? "Yes" : "No") + ")");
+    Serial.println("  Light Level: " + String(lightLevelPercent) + "% (Valid: " + String(sensorValidation.lightLevelValid ? "Yes" : "No") + ")");
   }
 }
 
@@ -703,9 +450,6 @@ void updateDisplay() {
           break;
         case 2:
           displayIrrigationInfo();
-          break;
-        case 3:
-          displayWiFiStatus();
           break;
         default:
           systemState.displayScreen = 0;
@@ -733,9 +477,9 @@ void displaySensorData() {
     
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Soil Moisture:");
+    lcd.print("Soil: " + String(systemState.soilMoisturePercent) + "%");
     lcd.setCursor(0, 1);
-    lcd.print(String(systemState.soilMoisturePercent) + "%");
+    lcd.print("Light: " + String(systemState.lightLevelPercent) + "%");
   #endif
 }
 
@@ -776,27 +520,6 @@ void displayIrrigationInfo() {
     } else {
       lcd.print("No irrigation yet");
     }
-  #endif
-}
-
-void displayWiFiStatus() {
-  #if DISPLAY_ENABLED
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("WiFi Status:");
-    lcd.setCursor(0, 1);
-    
-    if (systemState.wifiConnected) {
-      lcd.print("Connected");
-    } else {
-      lcd.print("Disconnected");
-    }
-    
-    delay(DISPLAY_SCROLL_DELAY);
-    
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("IP: " + WiFi.localIP().toString());
   #endif
 }
 
@@ -875,235 +598,6 @@ void stopIrrigation() {
 }
 
 // =============================================================================
-// NETWORK FUNCTIONS
-// =============================================================================
-
-void checkWiFiConnection() {
-  if (WiFi.status() != WL_CONNECTED) {
-    if (systemState.wifiConnected) {
-      Serial.println("WiFi connection lost! Attempting to reconnect...");
-      systemState.wifiConnected = false;
-    }
-    
-    // Attempt to reconnect
-    if (wifiReconnectAttempts < maxWifiReconnectAttempts) {
-      WiFi.reconnect();
-      wifiReconnectAttempts++;
-      
-      // Wait a bit for connection
-      delay(2000);
-      
-      if (WiFi.status() == WL_CONNECTED) {
-        systemState.wifiConnected = true;
-        wifiReconnectAttempts = 0;
-        Serial.println("WiFi reconnected successfully!");
-        Serial.println("IP address: " + WiFi.localIP().toString());
-      }
-    }
-  } else {
-    if (!systemState.wifiConnected) {
-      systemState.wifiConnected = true;
-      wifiReconnectAttempts = 0;
-      Serial.println("WiFi connection restored!");
-    }
-  }
-}
-
-void transmitDataToCloud() {
-  if (!systemState.wifiConnected) {
-    systemState.lastTransmissionStatus = "WiFi not connected";
-    return;
-  }
-  
-  Serial.println("Transmitting data to cloud...");
-  
-  HTTPClient http;
-  String url = "https://api.thingspeak.com/update";
-  
-  http.begin(url);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  
-  String data = "api_key=" + String(THINGSPEAK_API_KEY) +
-                "&field1=" + String(systemState.temperature) +
-                "&field2=" + String(systemState.humidity) +
-                "&field3=" + String(systemState.soilMoisturePercent) +
-                "&field4=" + String(systemState.lightLevelPercent) +
-                "&field5=" + String(systemState.pumpActive ? 1 : 0) +
-                "&field6=" + String(systemState.dailyIrrigations);
-  
-  int httpResponseCode = http.POST(data);
-  
-  if (httpResponseCode > 0) {
-    String response = http.getString();
-    Serial.println("Data transmitted successfully!");
-    Serial.println("Response code: " + String(httpResponseCode));
-    Serial.println("Response: " + response);
-    systemState.lastTransmissionStatus = "Success";
-    systemState.transmissionErrors = 0;
-  } else {
-    Serial.println("Error transmitting data!");
-    Serial.println("Response code: " + String(httpResponseCode));
-    systemState.lastTransmissionStatus = "Failed: " + String(httpResponseCode);
-    systemState.transmissionErrors++;
-  }
-  
-  http.end();
-}
-
-void transmitDataToAdafruitIO() {
-  if (!ADAFRUIT_IO_ENABLED) {
-    systemState.lastAdafruitIOStatus = "Disabled";
-    return;
-  }
-  
-  if (!systemState.wifiConnected || io.status() != AIO_CONNECTED) {
-    systemState.lastAdafruitIOStatus = "Not connected";
-    return;
-  }
-  
-  Serial.println("Transmitting data to Adafruit IO...");
-  
-  try {
-    // Send temperature data
-    temperatureFeed->save(systemState.temperature);
-    
-    // Send humidity data
-    humidityFeed->save(systemState.humidity);
-    
-    // Send soil moisture data
-    soilMoistureFeed->save(systemState.soilMoisturePercent);
-    
-    // Send light level data
-    lightLevelFeed->save(systemState.lightLevelPercent);
-    
-    // Send pump status (1 for active, 0 for inactive)
-    pumpStatusFeed->save(systemState.pumpActive ? 1 : 0);
-    
-    // Send irrigation count
-    irrigationCountFeed->save(systemState.dailyIrrigations);
-    
-    Serial.println("Data transmitted to Adafruit IO successfully!");
-    systemState.lastAdafruitIOStatus = "Success";
-    systemState.adafruitIOErrors = 0;
-    
-  } catch (const std::exception& e) {
-    Serial.println("Error transmitting data to Adafruit IO!");
-    Serial.println("Error: " + String(e.what()));
-    systemState.lastAdafruitIOStatus = "Failed: " + String(e.what());
-    systemState.adafruitIOErrors++;
-  }
-}
-
-// =============================================================================
-// WEB SERVER HANDLERS
-// =============================================================================
-
-void handleRoot() {
-  String html = "<!DOCTYPE html><html><head><title>Smart Farming System</title>";
-  html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
-  html += "<style>body{font-family:Arial;margin:20px;}";
-  html += ".container{max-width:800px;margin:0 auto;}";
-  html += ".card{background:#f4f4f4;padding:20px;margin:10px 0;border-radius:5px;}";
-  html += ".status{display:inline-block;padding:5px 10px;border-radius:3px;color:white;}";
-  html += ".ok{background:green;} .error{background:red;} .warning{background:orange;}";
-  html += "button{padding:10px 20px;margin:5px;border:none;border-radius:3px;cursor:pointer;}";
-  html += ".btn-primary{background:#007bff;color:white;}";
-  html += ".btn-danger{background:#dc3545;color:white;}";
-  html += "</style></head><body>";
-  
-  html += "<div class='container'>";
-  html += "<h1>Smart Farming System</h1>";
-  
-  // System Status
-  html += "<div class='card'>";
-  html += "<h2>System Status</h2>";
-  html += "<p>Temperature: " + String(systemState.temperature, 1) + "°C</p>";
-  html += "<p>Humidity: " + String(systemState.humidity, 1) + "%</p>";
-  html += "<p>Soil Moisture: " + String(systemState.soilMoisturePercent) + "%</p>";
-  html += "<p>Pump Status: <span class='status " + String(systemState.pumpActive ? "warning" : "ok") + "'>" + String(systemState.pumpActive ? "ACTIVE" : "INACTIVE") + "</span></p>";
-  html += "<p>Daily Irrigations: " + String(systemState.dailyIrrigations) + "</p>";
-  html += "<p>System Status: <span class='status " + String(systemState.systemOK ? "ok" : "error") + "'>" + String(systemState.systemOK ? "OK" : "ERROR") + "</span></p>";
-  html += "<p>WiFi Status: <span class='status " + String(systemState.wifiConnected ? "ok" : "error") + "'>" + String(systemState.wifiConnected ? "CONNECTED" : "DISCONNECTED") + "</span></p>";
-  html += "</div>";
-  
-  // Cloud Services Status
-  html += "<div class='card'>";
-  html += "<h2>Cloud Services Status</h2>";
-  html += "<p>ThingSpeak: <span class='status " + String(THINGSPEAK_ENABLED ? (systemState.lastTransmissionStatus == "Success" ? "ok" : "warning") : "warning") + "'>" + String(THINGSPEAK_ENABLED ? systemState.lastTransmissionStatus : "DISABLED") + "</span></p>";
-  html += "<p>Adafruit IO: <span class='status " + String(ADAFRUIT_IO_ENABLED ? (systemState.lastAdafruitIOStatus == "Success" ? "ok" : "warning") : "warning") + "'>" + String(ADAFRUIT_IO_ENABLED ? systemState.lastAdafruitIOStatus : "DISABLED") + "</span></p>";
-  html += "</div>";
-  
-  // Control Panel
-  html += "<div class='card'>";
-  html += "<h2>Control Panel</h2>";
-  html += "<button class='btn-primary' onclick='startIrrigation()'>Start Irrigation</button>";
-  html += "<button class='btn-danger' onclick='stopIrrigation()'>Stop Irrigation</button>";
-  html += "<button class='btn-primary' onclick='refreshData()'>Refresh Data</button>";
-  html += "</div>";
-  
-  // Network Info
-  html += "<div class='card'>";
-  html += "<h2>Network Information</h2>";
-  html += "<p>IP Address: " + WiFi.localIP().toString() + "</p>";
-  html += "<p>Signal Strength: " + String(WiFi.RSSI()) + " dBm</p>";
-  html += "<p>Last Transmission: " + systemState.lastTransmissionStatus + "</p>";
-  html += "</div>";
-  
-  html += "</div>";
-  
-  // JavaScript
-  html += "<script>";
-  html += "function startIrrigation(){fetch('/control?action=start',{method:'POST'}).then(()=>refreshData());}";
-  html += "function stopIrrigation(){fetch('/control?action=stop',{method:'POST'}).then(()=>refreshData());}";
-  html += "function refreshData(){location.reload();}";
-  html += "setInterval(refreshData, 30000);"; // Auto-refresh every 30 seconds
-  html += "</script>";
-  
-  html += "</body></html>";
-  
-  server.send(200, "text/html", html);
-}
-
-void handleAPI() {
-  String json = getSystemStatusJSON();
-  server.send(200, "application/json", json);
-}
-
-void handleControl() {
-  if (server.hasArg("action")) {
-    String action = server.arg("action");
-    
-    if (action == "start") {
-      startIrrigation();
-      server.send(200, "text/plain", "Irrigation started");
-    } else if (action == "stop") {
-      stopIrrigation();
-      server.send(200, "text/plain", "Irrigation stopped");
-    } else {
-      server.send(400, "text/plain", "Invalid action");
-    }
-  } else {
-    server.send(400, "text/plain", "Missing action parameter");
-  }
-}
-
-void handleStatus() {
-  String json = getSystemStatusJSON();
-  server.send(200, "application/json", json);
-}
-
-void handleOTA() {
-  String html = "<!DOCTYPE html><html><head><title>OTA Update</title></head><body>";
-  html += "<h1>OTA Update</h1>";
-  html += "<p>OTA updates are enabled and ready.</p>";
-  html += "<p>Use Arduino IDE or ESP32 OTA tools to upload new firmware.</p>";
-  html += "<p>Hostname: " + String(OTA_HOSTNAME) + "</p>";
-  html += "</body></html>";
-  
-  server.send(200, "text/html", html);
-}
-
-// =============================================================================
 // LED CONTROL FUNCTIONS
 // =============================================================================
 
@@ -1114,8 +608,8 @@ void updateLEDs() {
   // Red LED: Pump Active
   digitalWrite(LED_RED_PIN, systemState.pumpActive);
   
-  // Blue LED: WiFi Connected
-  digitalWrite(LED_BLUE_PIN, systemState.wifiConnected);
+  // Blue LED: Offline mode (always off in offline version)
+  digitalWrite(LED_BLUE_PIN, LOW);
 }
 
 // =============================================================================
@@ -1163,33 +657,16 @@ void performHeartbeat() {
   Serial.println("  Pump Status: " + String(systemState.pumpActive ? "ON" : "OFF"));
   Serial.println("  Daily Irrigations: " + String(systemState.dailyIrrigations));
   Serial.println("  System Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
-  Serial.println("  WiFi Status: " + String(systemState.wifiConnected ? "CONNECTED" : "DISCONNECTED"));
-  Serial.println("  ThingSpeak Status: " + systemState.lastTransmissionStatus);
-  Serial.println("  Adafruit IO Status: " + systemState.lastAdafruitIOStatus);
 }
 
 // =============================================================================
-// DATA MANAGEMENT FUNCTIONS
+// DATA LOGGING FUNCTIONS
 // =============================================================================
 
 void logSystemData() {
   static unsigned long lastLogTime = 0;
   
   if (currentTime - lastLogTime >= LOG_INTERVAL) {
-    // Store data in log buffer
-    dataLog[logIndex].timestamp = currentTime;
-    dataLog[logIndex].temperature = systemState.temperature;
-    dataLog[logIndex].humidity = systemState.humidity;
-    dataLog[logIndex].soilMoisturePercent = systemState.soilMoisturePercent;
-    dataLog[logIndex].pumpActive = systemState.pumpActive;
-    dataLog[logIndex].dailyIrrigations = systemState.dailyIrrigations;
-    
-    logIndex = (logIndex + 1) % LOG_BUFFER_SIZE;
-    if (logIndex == 0) {
-      logBufferFull = true;
-    }
-    
-    // Serial output
     Serial.println("=== SYSTEM DATA LOG ===");
     Serial.println("Timestamp: " + String(currentTime));
     Serial.println("Temperature: " + String(systemState.temperature, 2) + "°C");
@@ -1199,55 +676,12 @@ void logSystemData() {
     Serial.println("Pump Active: " + String(systemState.pumpActive ? "Yes" : "No"));
     Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
     Serial.println("System OK: " + String(systemState.systemOK ? "Yes" : "No"));
-    Serial.println("WiFi Connected: " + String(systemState.wifiConnected ? "Yes" : "No"));
     Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
-    Serial.println("ThingSpeak Errors: " + String(systemState.transmissionErrors));
-    Serial.println("Adafruit IO Errors: " + String(systemState.adafruitIOErrors));
     Serial.println("Free Heap: " + String(ESP.getFreeHeap()) + " bytes");
     Serial.println("========================");
     
     lastLogTime = currentTime;
   }
-}
-
-void clearDataLog() {
-  for (int i = 0; i < LOG_BUFFER_SIZE; i++) {
-    dataLog[i].timestamp = 0;
-    dataLog[i].temperature = 0.0;
-    dataLog[i].humidity = 0.0;
-    dataLog[i].soilMoisturePercent = 0;
-    dataLog[i].pumpActive = false;
-    dataLog[i].dailyIrrigations = 0;
-  }
-  logIndex = 0;
-  logBufferFull = false;
-}
-
-String getSystemStatusJSON() {
-  DynamicJsonDocument doc(1024);
-  
-  doc["timestamp"] = currentTime;
-  doc["temperature"] = systemState.temperature;
-  doc["humidity"] = systemState.humidity;
-  doc["soilMoisture"] = systemState.soilMoisturePercent;
-  doc["soilMoistureRaw"] = systemState.soilMoistureRaw;
-  doc["pumpActive"] = systemState.pumpActive;
-  doc["dailyIrrigations"] = systemState.dailyIrrigations;
-  doc["systemOK"] = systemState.systemOK;
-  doc["wifiConnected"] = systemState.wifiConnected;
-  doc["sensorErrors"] = systemState.sensorErrors;
-  doc["transmissionErrors"] = systemState.transmissionErrors;
-  doc["adafruitIOErrors"] = systemState.adafruitIOErrors;
-  doc["lastTransmissionStatus"] = systemState.lastTransmissionStatus;
-  doc["lastAdafruitIOStatus"] = systemState.lastAdafruitIOStatus;
-  doc["thingSpeakEnabled"] = THINGSPEAK_ENABLED;
-  doc["adafruitIOEnabled"] = ADAFRUIT_IO_ENABLED;
-  doc["freeHeap"] = ESP.getFreeHeap();
-  doc["uptime"] = millis();
-  
-  String json;
-  serializeJson(doc, json);
-  return json;
 }
 
 // =============================================================================
@@ -1256,7 +690,12 @@ String getSystemStatusJSON() {
 
 void initializeWatchdog() {
   if (WATCHDOG_ENABLED) {
-    esp_task_wdt_init(WATCHDOG_TIMEOUT, true);
+    esp_task_wdt_config_t wdt_config = {
+      .timeout_ms = WATCHDOG_TIMEOUT * 1000,
+      .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,
+      .trigger_panic = true
+    };
+    esp_task_wdt_init(&wdt_config);
     esp_task_wdt_add(NULL);
     Serial.println("Watchdog timer initialized (" + String(WATCHDOG_TIMEOUT) + " seconds)");
   }
@@ -1430,18 +869,18 @@ void displayAllInfo() {
     lcd.setCursor(0, 0);
     lcd.print("T:" + String(systemState.temperature, 1) + "C H:" + String(systemState.humidity, 1) + "%");
     
-    // Line 2: Soil Moisture and Pump Status
+    // Line 2: Soil Moisture and Light Level
     lcd.setCursor(0, 1);
-    lcd.print("Soil:" + String(systemState.soilMoisturePercent) + "% Pump:" + String(systemState.pumpActive ? "ON" : "OFF"));
+    lcd.print("Soil:" + String(systemState.soilMoisturePercent) + "% Light:" + String(systemState.lightLevelPercent) + "%");
     
-    // Line 3: System Status and WiFi
+    // Line 3: Pump Status and System Status
     lcd.setCursor(0, 2);
-    lcd.print("Status:" + String(systemState.systemOK ? "OK" : "ERROR") + " WiFi:" + String(systemState.wifiConnected ? "ON" : "OFF"));
+    lcd.print("Pump:" + String(systemState.pumpActive ? "ON" : "OFF") + " Status:" + String(systemState.systemOK ? "OK" : "ERROR"));
     
-    // Line 4: Daily Irrigations and Cloud Status
+    // Line 4: Daily Irrigations and Uptime
     lcd.setCursor(0, 3);
-    String cloudStatus = "TS:" + String(THINGSPEAK_ENABLED ? "ON" : "OFF") + " AIO:" + String(ADAFRUIT_IO_ENABLED ? "ON" : "OFF");
-    lcd.print("Daily:" + String(systemState.dailyIrrigations) + " " + cloudStatus);
+    unsigned long uptime = currentTime / 1000;
+    lcd.print("Daily:" + String(systemState.dailyIrrigations) + " Up:" + String(uptime / 60) + "m");
   #endif
 }
 
@@ -1450,19 +889,16 @@ void outputToSerial() {
     static unsigned long lastSerialOutput = 0;
     
     if (currentTime - lastSerialOutput >= DISPLAY_UPDATE_INTERVAL) {
-      Serial.println("=== SMART FARMING STATUS (ONLINE) ===");
+      Serial.println("=== SMART FARMING STATUS ===");
       Serial.println("Temperature: " + String(systemState.temperature, 1) + "°C");
       Serial.println("Humidity: " + String(systemState.humidity, 1) + "%");
       Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
       Serial.println("Pump Status: " + String(systemState.pumpActive ? "ACTIVE" : "INACTIVE"));
       Serial.println("System Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
-      Serial.println("WiFi Status: " + String(systemState.wifiConnected ? "CONNECTED" : "DISCONNECTED"));
       Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
-      Serial.println("ThingSpeak Status: " + systemState.lastTransmissionStatus);
-      Serial.println("Adafruit IO Status: " + systemState.lastAdafruitIOStatus);
       Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
       Serial.println("Uptime: " + String(currentTime / 1000) + " seconds");
-      Serial.println("=====================================");
+      Serial.println("==========================");
       
       lastSerialOutput = currentTime;
     }
@@ -1642,7 +1078,7 @@ void displayMenu() {
       "Soil Threshold",
       "Irrigation Time", 
       "Display Speed",
-      "WiFi Settings",
+      "System Status",
       "Save & Exit"
     };
     
@@ -1680,10 +1116,10 @@ void displayParameterAdjustment() {
         lcd.print(String(DISPLAY_SCROLL_DELAY / 1000) + "s");
         break;
         
-      case 3: // WiFi Settings
-        lcd.print("WiFi Status:");
+      case 3: // System Status
+        lcd.print("System Status:");
         lcd.setCursor(0, 1);
-        lcd.print(systemState.wifiConnected ? "Connected" : "Disconnected");
+        lcd.print(systemState.systemOK ? "OK" : "ERROR");
         break;
     }
   #endif
@@ -1707,7 +1143,7 @@ void adjustParameter(int direction) {
         // Could be made adjustable in future versions
         break;
         
-      case 3: // WiFi Settings (read-only)
+      case 3: // System Status (read-only)
         break;
     }
   #endif
