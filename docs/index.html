@@ -208,22 +208,34 @@
                     <h3 class="text-2xl font-semibold mb-6" data-en="Project Structure" data-id="Struktur Proyek">Project Structure</h3>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <pre class="text-sm text-gray-700"><code>smart_farming/
-├── MainCode/                    # Main system
-│   ├── smart_farming_offline.ino
-│   ├── smart_farming_online.ino
-│   ├── config.h
-│   └── README.md
-├── TestCode/                    # Hardware testing
-│   ├── hardware_test.ino
-│   └── README.md
+├── MainCode/                    # Main smart farming system
+│   ├── offline/                     # Offline version (standalone)
+│   │   ├── offline.ino              # Main offline sketch
+│   │   ├── config.h                 # Offline configuration
+│   │   └── README.md                # Offline documentation
+│   ├── online/                      # Online version (IoT with cloud)
+│   │   ├── online.ino               # Main online sketch
+│   │   ├── config.h                 # Online configuration
+│   │   └── README.md                # Online documentation
+│   └── README.md                    # Main code documentation
+├── TestCode/                    # Testing and validation
+│   ├── hardware/                    # Hardware testing
+│   │   ├── hardware_test.ino        # Comprehensive hardware test
+│   │   └── README.md                # Hardware test documentation
+│   ├── communication/               # Communication testing
+│   │   ├── communication.ino        # Communication test suite
+│   │   └── README.md                # Communication test documentation
+│   └── README.md                    # Test code documentation
 ├── docs/                        # Web documentation
-│   ├── index.html
-│   ├── styles.css
-│   └── script.js
-├── wiring_diagram.md
-├── libraries.txt
-├── LICENSE
-└── README.md</code></pre>
+│   ├── index.html               # Main documentation page
+│   ├── styles.css               # Custom CSS styles
+│   ├── script.js                # Interactive JavaScript
+│   └── README.md                # Documentation guide
+├── configuration.md            # Comprehensive configuration guide
+├── wiring_diagram.md           # Wiring instructions with Mermaid
+├── libraries.txt              # Required Arduino libraries
+├── LICENSE                     # MIT License
+└── README.md                  # Main documentation</code></pre>
                     </div>
                 </div>
             </div>
@@ -467,7 +479,7 @@
                         <h3 class="text-xl font-semibold mb-3" data-en="Hardware Testing" data-id="Uji Perangkat Keras">Hardware Testing</h3>
                         <p class="text-gray-600 mb-4" data-en="Start by running the hardware test code to verify all connections and components." data-id="Mulai dengan menjalankan kode uji perangkat keras untuk memverifikasi semua koneksi dan komponen.">Start by running the hardware test code to verify all connections and components.</p>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <code class="text-sm">TestCode/hardware_test.ino</code>
+                            <code class="text-sm">TestCode/hardware/hardware_test.ino</code>
                         </div>
                     </div>
                 </div>
@@ -475,6 +487,18 @@
                 <!-- Step 2 -->
                 <div class="flex items-start">
                     <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Communication Testing" data-id="Uji Komunikasi">Communication Testing</h3>
+                        <p class="text-gray-600 mb-4" data-en="Test WiFi and cloud connectivity (for online version only)." data-id="Uji konektivitas WiFi dan cloud (hanya untuk versi online).">Test WiFi and cloud connectivity (for online version only).</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm">TestCode/communication/communication.ino</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">3</div>
                     <div class="flex-1">
                         <h3 class="text-xl font-semibold mb-3" data-en="Install Libraries" data-id="Instal Pustaka">Install Libraries</h3>
                         <p class="text-gray-600 mb-4" data-en="Install all required libraries via Arduino IDE Library Manager." data-id="Instal semua pustaka yang diperlukan melalui Arduino IDE Library Manager.">Install all required libraries via Arduino IDE Library Manager.</p>
@@ -484,26 +508,17 @@
                     </div>
                 </div>
 
-                <!-- Step 3 -->
-                <div class="flex items-start">
-                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">3</div>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-semibold mb-3" data-en="Configure System" data-id="Konfigurasi Sistem">Configure System</h3>
-                        <p class="text-gray-600 mb-4" data-en="Edit the configuration file to match your hardware setup." data-id="Edit file konfigurasi untuk menyesuaikan dengan setup perangkat keras Anda.">Edit the configuration file to match your hardware setup.</p>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <code class="text-sm">MainCode/config.h</code>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Step 4 -->
                 <div class="flex items-start">
                     <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">4</div>
                     <div class="flex-1">
-                        <h3 class="text-xl font-semibold mb-3" data-en="Upload Code" data-id="Upload Kode">Upload Code</h3>
-                        <p class="text-gray-600 mb-4" data-en="Choose between offline or online version and upload to your ESP32." data-id="Pilih antara versi offline atau online dan upload ke ESP32 Anda.">Choose between offline or online version and upload to your ESP32.</p>
+                        <h3 class="text-xl font-semibold mb-3" data-en="Open Project in Arduino IDE" data-id="Buka Proyek di Arduino IDE">Open Project in Arduino IDE</h3>
+                        <p class="text-gray-600 mb-4" data-en="Open the appropriate sketch file for your chosen version." data-id="Buka file sketch yang sesuai untuk versi yang Anda pilih.">Open the appropriate sketch file for your chosen version.</p>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <code class="text-sm">MainCode/smart_farming_offline.ino or smart_farming_online.ino</code>
+                            <code class="text-sm">MainCode/offline/offline.ino    # For offline version</code><br>
+                            <code class="text-sm">MainCode/online/online.ino     # For online version</code><br>
+                            <code class="text-sm">TestCode/hardware/hardware_test.ino    # For hardware testing</code><br>
+                            <code class="text-sm">TestCode/communication/communication.ino # For communication testing</code>
                         </div>
                     </div>
                 </div>
@@ -511,6 +526,32 @@
                 <!-- Step 5 -->
                 <div class="flex items-start">
                     <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">5</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Configure System" data-id="Konfigurasi Sistem">Configure System</h3>
+                        <p class="text-gray-600 mb-4" data-en="Edit the configuration file to match your hardware setup." data-id="Edit file konfigurasi untuk menyesuaikan dengan setup perangkat keras Anda.">Edit the configuration file to match your hardware setup.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm">MainCode/offline/config.h  # For offline version</code><br>
+                            <code class="text-sm">MainCode/online/config.h   # For online version</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">6</div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold mb-3" data-en="Upload Code" data-id="Upload Kode">Upload Code</h3>
+                        <p class="text-gray-600 mb-4" data-en="Choose between offline or online version and upload to your ESP32." data-id="Pilih antara versi offline atau online dan upload ke ESP32 Anda.">Choose between offline or online version and upload to your ESP32.</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <code class="text-sm">MainCode/offline/offline.ino    # For offline version</code><br>
+                            <code class="text-sm">MainCode/online/online.ino     # For online version</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="flex items-start">
+                    <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">7</div>
                     <div class="flex-1">
                         <h3 class="text-xl font-semibold mb-3" data-en="Monitor System" data-id="Monitor Sistem">Monitor System</h3>
                         <p class="text-gray-600 mb-4" data-en="Use serial output or web interface to monitor system operation." data-id="Gunakan output serial atau antarmuka web untuk memantau operasi sistem.">Use serial output or web interface to monitor system operation.</p>

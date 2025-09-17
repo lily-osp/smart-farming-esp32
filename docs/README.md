@@ -27,11 +27,12 @@ This folder contains the comprehensive web-based documentation for the ESP32 Sma
 
 ### Content Sections
 - **Hero Section**: Project introduction with call-to-action buttons
-- **Quick Start**: Step-by-step getting started guide
-- **Project Overview**: Key features and project structure
+- **Quick Start**: Step-by-step getting started guide with Arduino IDE structure
+- **Project Overview**: Key features and updated project structure
 - **Hardware Requirements**: Detailed component specifications
 - **Software Features**: Offline vs online version comparison
-- **Setup Guide**: Comprehensive installation instructions
+- **Setup Guide**: Comprehensive installation instructions with new file paths
+- **Testing Guide**: Hardware and communication testing procedures
 - **API Documentation**: REST API endpoints and examples
 - **Troubleshooting**: Common issues and solutions
 - **Support**: Links to resources and community
@@ -80,6 +81,8 @@ This folder contains the comprehensive web-based documentation for the ESP32 Sma
 - **Text**: Update all text content directly in HTML
 - **Images**: Add images and update paths
 - **Links**: Update GitHub and external links
+- **File Paths**: Update references to new Arduino IDE structure
+- **Project Structure**: Reflect new folder organization
 
 ### Functionality
 - **JavaScript**: Modify `script.js` for custom behavior
@@ -125,6 +128,8 @@ This folder contains the comprehensive web-based documentation for the ESP32 Sma
 - **Dependencies**: Keep external libraries updated
 - **Browser Support**: Test on new browser versions
 - **Performance**: Monitor and optimize loading times
+- **Structure**: Update to reflect new Arduino IDE organization
+- **File Paths**: Keep file references current with project structure
 
 ### Testing
 - **Cross-Browser**: Test on all supported browsers
