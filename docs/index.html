@@ -175,6 +175,13 @@
                             </div>
                         </div>
                         <div class="flex items-start">
+                            <i class="fas fa-sun text-primary text-xl mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold" data-en="Light Level Monitoring" data-id="Monitoring Tingkat Cahaya">Light Level Monitoring</h4>
+                                <p class="text-gray-600" data-en="Optional LDR sensor for ambient light detection with configurable thresholds for day/night cycles." data-id="Sensor LDR opsional untuk deteksi cahaya ambient dengan ambang batas yang dapat dikonfigurasi untuk siklus siang/malam.">Optional LDR sensor for ambient light detection with configurable thresholds for day/night cycles.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
                             <i class="fas fa-cloud text-primary text-xl mt-1 mr-3"></i>
                             <div>
                                 <h4 class="font-semibold" data-en="IoT Connectivity" data-id="Konektivitas IoT">IoT Connectivity</h4>
@@ -252,15 +259,6 @@
                     
                     <div class="bg-gray-50 p-6 rounded-lg">
                         <div class="flex items-center mb-4">
-                            <i class="fas fa-thermometer-half text-primary text-2xl mr-3"></i>
-                            <h4 class="text-lg font-semibold" data-en="DHT Sensor" data-id="Sensor DHT">DHT Sensor</h4>
-                        </div>
-                        <p class="text-gray-600 mb-2" data-en="DHT11 or DHT22" data-id="DHT11 atau DHT22">DHT11 or DHT22</p>
-                        <p class="text-sm text-gray-500" data-en="Temperature and humidity monitoring" data-id="Monitoring suhu dan kelembaban">Temperature and humidity monitoring</p>
-                    </div>
-                    
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <div class="flex items-center mb-4">
                             <i class="fas fa-exchange-alt text-primary text-2xl mr-3"></i>
                             <h4 class="text-lg font-semibold" data-en="Relay Module" data-id="Modul Relay">Relay Module</h4>
                         </div>
@@ -292,6 +290,22 @@
             <div>
                 <h3 class="text-2xl font-semibold mb-6" data-en="Optional Components" data-id="Komponen Opsional">Optional Components</h3>
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-thermometer-half text-primary text-xl mr-3"></i>
+                            <h4 class="font-semibold" data-en="DHT Sensor" data-id="Sensor DHT">DHT Sensor</h4>
+                        </div>
+                        <p class="text-sm text-gray-600" data-en="DHT11 or DHT22" data-id="DHT11 atau DHT22">DHT11 or DHT22</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-sun text-primary text-xl mr-3"></i>
+                            <h4 class="font-semibold" data-en="LDR Sensor" data-id="Sensor LDR">LDR Sensor</h4>
+                        </div>
+                        <p class="text-sm text-gray-600" data-en="Light Dependent Resistor" data-id="Resistor Bergantung Cahaya">Light Dependent Resistor</p>
+                    </div>
+                    
                     <div class="bg-gray-50 p-6 rounded-lg">
                         <div class="flex items-center mb-4">
                             <i class="fas fa-tv text-primary text-xl mr-3"></i>
@@ -431,6 +445,7 @@
                         <ul class="text-gray-600 space-y-1">
                             <li data-en="DHT11" data-id="DHT11">DHT11</li>
                             <li data-en="DHT22" data-id="DHT22">DHT22</li>
+                            <li data-en="LDR Sensor" data-id="Sensor LDR">LDR Sensor</li>
                             <li data-en="None (Soil only)" data-id="Tidak Ada (Tanah saja)">None (Soil only)</li>
                         </ul>
                     </div>
@@ -598,6 +613,8 @@
                                 <li data-en="• Check wiring connections" data-id="• Periksa koneksi kabel">• Check wiring connections</li>
                                 <li data-en="• Verify power supply voltage" data-id="• Verifikasi tegangan catu daya">• Verify power supply voltage</li>
                                 <li data-en="• Check sensor configuration" data-id="• Periksa konfigurasi sensor">• Check sensor configuration</li>
+                                <li data-en="• LDR: Verify 10kΩ pull-down resistor" data-id="• LDR: Verifikasi resistor pull-down 10kΩ">• LDR: Verify 10kΩ pull-down resistor</li>
+                                <li data-en="• LDR: Check GPIO 39 connection" data-id="• LDR: Periksa koneksi GPIO 39">• LDR: Check GPIO 39 connection</li>
                             </ul>
                         </div>
                         

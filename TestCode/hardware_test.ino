@@ -9,10 +9,11 @@
  * 2. LED Status Test (Green, Red, Blue)
  * 3. Soil Moisture Sensor Test
  * 4. DHT Sensor Test (if enabled)
- * 5. LCD Display Test (if enabled)
- * 6. Relay Test
- * 7. Control System Test (if enabled)
- * 8. Emergency Stop Test (if enabled)
+ * 5. LDR Sensor Test (optional)
+ * 6. LCD Display Test (if enabled)
+ * 7. Relay Test
+ * 8. Control System Test (if enabled)
+ * 9. Emergency Stop Test (if enabled)
  * 
  * Author: Smart Farming Demo
  * Version: 1.0.0
@@ -31,6 +32,7 @@
 
 // Hardware Configuration
 #define SOIL_MOISTURE_PIN 36      // ADC1_CH0
+#define LDR_PIN 39                // ADC1_CH3 - LDR sensor pin
 #define RELAY_PIN 19              // Relay control pin
 #define LED_GREEN_PIN 18          // System status LED
 #define LED_RED_PIN 23            // Pump active LED
@@ -41,6 +43,9 @@
 #define DHT_ENABLED 1             // 1 = enabled, 0 = disabled
 #define DHT_PIN 5                 // DHT data pin
 #define DHT_TYPE DHT22            // DHT11 or DHT22
+
+// LDR Sensor Configuration (set to 0 to disable)
+#define LDR_ENABLED 0             // 1 = enabled, 0 = disabled
 
 // LCD Configuration (set to 0 to disable)
 #define LCD_ENABLED 1             // 1 = enabled, 0 = disabled
@@ -85,6 +90,7 @@ struct TestResults {
   bool ledTest = false;
   bool soilMoistureTest = false;
   bool dhtTest = false;
+  bool ldrTest = false;
   bool lcdTest = false;
   bool relayTest = false;
   bool controlTest = false;
@@ -196,23 +202,29 @@ void runAllTests() {
     delay(TEST_DELAY);
   #endif
   
-  // Test 5: LCD Display (if enabled)
+  // Test 5: LDR Sensor (if enabled)
+  #if LDR_ENABLED
+    testLDRSensor();
+    delay(TEST_DELAY);
+  #endif
+  
+  // Test 6: LCD Display (if enabled)
   #if LCD_ENABLED
     testLCDDisplay();
     delay(TEST_DELAY);
   #endif
   
-  // Test 6: Relay Module
+  // Test 7: Relay Module
   testRelayModule();
   delay(TEST_DELAY);
   
-  // Test 7: Control System (if enabled)
+  // Test 8: Control System (if enabled)
   #if CONTROL_ENABLED
     testControlSystem();
     delay(TEST_DELAY);
   #endif
   
-  // Test 8: Emergency Stop (if enabled)
+  // Test 9: Emergency Stop (if enabled)
   if (EMERGENCY_STOP_PIN >= 0) {
     testEmergencyStop();
     delay(TEST_DELAY);
@@ -295,9 +307,29 @@ void testDHTSensor() {
 }
 #endif
 
+#if LDR_ENABLED
+void testLDRSensor() {
+  Serial.println("Test 5: LDR Light Sensor");
+  
+  int rawValue = analogRead(LDR_PIN);
+  int lightPercent = map(rawValue, 4095, 0, 0, 100); // Invert: high value = dark
+  lightPercent = constrain(lightPercent, 0, 100);
+  
+  Serial.println("  Raw Value: " + String(rawValue));
+  Serial.println("  Light Level: " + String(lightPercent) + "%");
+  
+  if (rawValue >= 0 && rawValue <= 4095) {
+    Serial.println("  ✓ LDR sensor working");
+    testResults.ldrTest = true;
+  } else {
+    Serial.println("  ✗ LDR sensor error - check connections");
+  }
+}
+#endif
+
 #if LCD_ENABLED
 void testLCDDisplay() {
-  Serial.println("Test 5: LCD Display");
+  Serial.println("Test 6: LCD Display");
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -392,6 +424,12 @@ void displayFinalResults() {
     Serial.println("DHT Sensor: DISABLED");
   #endif
   
+  #if LDR_ENABLED
+    Serial.println("LDR Sensor: " + String(testResults.ldrTest ? "✓ PASS" : "✗ FAIL"));
+  #else
+    Serial.println("LDR Sensor: DISABLED");
+  #endif
+  
   #if LCD_ENABLED
     Serial.println("LCD Display: " + String(testResults.lcdTest ? "✓ PASS" : "✗ FAIL"));
   #else
@@ -420,6 +458,7 @@ void displayFinalResults() {
                        testResults.soilMoistureTest && 
                        testResults.relayTest &&
                        (!DHT_ENABLED || testResults.dhtTest) &&
+                       (!LDR_ENABLED || testResults.ldrTest) &&
                        (!LCD_ENABLED || testResults.lcdTest) &&
                        (!CONTROL_ENABLED || testResults.controlTest) &&
                        (EMERGENCY_STOP_PIN < 0 || testResults.emergencyTest);

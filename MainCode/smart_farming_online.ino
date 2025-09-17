@@ -65,6 +65,8 @@ struct SystemState {
   float humidity = 0.0;
   int soilMoistureRaw = 0;
   int soilMoisturePercent = 0;
+  int lightLevelRaw = 0;
+  int lightLevelPercent = 0;
   bool pumpActive = false;
   bool systemOK = true;
   bool wifiConnected = false;
@@ -106,13 +108,16 @@ struct SensorValidation {
   float lastTemperature = 0.0;
   float lastHumidity = 0.0;
   int lastSoilMoisture = 0;
+  int lastLightLevel = 0;
   int temperatureReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
   int humidityReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
   int soilMoistureReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
+  int lightLevelReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
   int readingIndex = 0;
   bool temperatureValid = true;
   bool humidityValid = true;
   bool soilMoistureValid = true;
+  bool lightLevelValid = true;
   int disconnectCount = 0;
 } sensorValidation;
 
@@ -125,6 +130,7 @@ bool otaEnabled = false;
 AdafruitIO_Feed *temperatureFeed;
 AdafruitIO_Feed *humidityFeed;
 AdafruitIO_Feed *soilMoistureFeed;
+AdafruitIO_Feed *lightLevelFeed;
 AdafruitIO_Feed *pumpStatusFeed;
 AdafruitIO_Feed *irrigationCountFeed;
 
@@ -511,6 +517,7 @@ void initializeAdafruitIO() {
   temperatureFeed = io.feed(ADAFRUIT_IO_TEMPERATURE_FEED);
   humidityFeed = io.feed(ADAFRUIT_IO_HUMIDITY_FEED);
   soilMoistureFeed = io.feed(ADAFRUIT_IO_SOIL_MOISTURE_FEED);
+  lightLevelFeed = io.feed(ADAFRUIT_IO_LIGHT_LEVEL_FEED);
   pumpStatusFeed = io.feed(ADAFRUIT_IO_PUMP_STATUS_FEED);
   irrigationCountFeed = io.feed(ADAFRUIT_IO_IRRIGATION_COUNT_FEED);
   
@@ -631,8 +638,24 @@ void readSensors() {
   int soilMoisturePercent = map(soilMoistureRaw, SOIL_MOISTURE_WET_VALUE, SOIL_MOISTURE_DRY_VALUE, 100, 0);
   soilMoisturePercent = constrain(soilMoisturePercent, 0, 100);
   
+  // Read LDR sensor (if enabled)
+  int lightLevelRaw = 0;
+  int lightLevelPercent = 0;
+  
+  #if LDR_ENABLED
+    lightLevelRaw = analogRead(LDR_PIN);
+    
+    // Convert raw reading to percentage (inverted: high value = dark, low value = bright)
+    lightLevelPercent = map(lightLevelRaw, LDR_DARK_VALUE, LDR_BRIGHT_VALUE, 0, 100);
+    lightLevelPercent = constrain(lightLevelPercent, 0, 100);
+  #else
+    // No LDR sensor - use default values
+    lightLevelRaw = 2048;  // Default middle value
+    lightLevelPercent = 50; // Default 50% light level
+  #endif
+  
   // Validate sensor readings
-  validateSensorReadings(temperature, humidity, soilMoisturePercent);
+  validateSensorReadings(temperature, humidity, soilMoisturePercent, lightLevelPercent);
   
   // Only update system state if readings are valid
   if (sensorValidation.temperatureValid && sensorValidation.humidityValid && sensorValidation.soilMoistureValid) {
@@ -640,6 +663,8 @@ void readSensors() {
     systemState.humidity = humidity;
     systemState.soilMoistureRaw = soilMoistureRaw;
     systemState.soilMoisturePercent = soilMoisturePercent;
+    systemState.lightLevelRaw = lightLevelRaw;
+    systemState.lightLevelPercent = lightLevelPercent;
     
     // Reset sensor error counter on successful reading
     systemState.sensorErrors = 0;
@@ -902,8 +927,9 @@ void transmitDataToCloud() {
                 "&field1=" + String(systemState.temperature) +
                 "&field2=" + String(systemState.humidity) +
                 "&field3=" + String(systemState.soilMoisturePercent) +
-                "&field4=" + String(systemState.pumpActive ? 1 : 0) +
-                "&field5=" + String(systemState.dailyIrrigations);
+                "&field4=" + String(systemState.lightLevelPercent) +
+                "&field5=" + String(systemState.pumpActive ? 1 : 0) +
+                "&field6=" + String(systemState.dailyIrrigations);
   
   int httpResponseCode = http.POST(data);
   
@@ -946,6 +972,9 @@ void transmitDataToAdafruitIO() {
     
     // Send soil moisture data
     soilMoistureFeed->save(systemState.soilMoisturePercent);
+    
+    // Send light level data
+    lightLevelFeed->save(systemState.lightLevelPercent);
     
     // Send pump status (1 for active, 0 for inactive)
     pumpStatusFeed->save(systemState.pumpActive ? 1 : 0);
@@ -1269,7 +1298,7 @@ void emergencyStop() {
   Serial.println("System halted due to emergency stop!");
 }
 
-void validateSensorReadings(float temperature, float humidity, int soilMoisture) {
+void validateSensorReadings(float temperature, float humidity, int soilMoisture, int lightLevel) {
   // Validate temperature
   sensorValidation.temperatureValid = isSensorReadingValid(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE, TEMPERATURE_VALIDATION);
   
@@ -1278,6 +1307,9 @@ void validateSensorReadings(float temperature, float humidity, int soilMoisture)
   
   // Validate soil moisture
   sensorValidation.soilMoistureValid = isSensorReadingValid(soilMoisture, MIN_SOIL_MOISTURE, MAX_SOIL_MOISTURE, SOIL_MOISTURE_VALIDATION);
+  
+  // Validate light level
+  sensorValidation.lightLevelValid = isSensorReadingValid(lightLevel, MIN_LIGHT_LEVEL, MAX_LIGHT_LEVEL, LIGHT_VALIDATION);
   
   // Check for sudden changes in soil moisture
   if (SOIL_MOISTURE_VALIDATION && sensorValidation.soilMoistureValid) {
@@ -1288,22 +1320,34 @@ void validateSensorReadings(float temperature, float humidity, int soilMoisture)
     }
   }
   
+  // Check for sudden changes in light level
+  if (LIGHT_VALIDATION && sensorValidation.lightLevelValid) {
+    int change = abs(lightLevel - sensorValidation.lastLightLevel);
+    if (change > MAX_LIGHT_CHANGE) {
+      Serial.println("Warning: Sudden light level change detected: " + String(change) + "%");
+      sensorValidation.lightLevelValid = false;
+    }
+  }
+  
   // Check sensor consistency
   if (CONSISTENCY_VALIDATION) {
     sensorValidation.temperatureValid &= checkSensorConsistency(sensorValidation.temperatureReadings, (int)(temperature * 10));
     sensorValidation.humidityValid &= checkSensorConsistency(sensorValidation.humidityReadings, (int)(humidity * 10));
     sensorValidation.soilMoistureValid &= checkSensorConsistency(sensorValidation.soilMoistureReadings, soilMoisture);
+    sensorValidation.lightLevelValid &= checkSensorConsistency(sensorValidation.lightLevelReadings, lightLevel);
   }
   
   // Update last readings
   sensorValidation.lastTemperature = temperature;
   sensorValidation.lastHumidity = humidity;
   sensorValidation.lastSoilMoisture = soilMoisture;
+  sensorValidation.lastLightLevel = lightLevel;
   
   // Update reading arrays for consistency checking
   sensorValidation.temperatureReadings[sensorValidation.readingIndex] = (int)(temperature * 10);
   sensorValidation.humidityReadings[sensorValidation.readingIndex] = (int)(humidity * 10);
   sensorValidation.soilMoistureReadings[sensorValidation.readingIndex] = soilMoisture;
+  sensorValidation.lightLevelReadings[sensorValidation.readingIndex] = lightLevel;
   sensorValidation.readingIndex = (sensorValidation.readingIndex + 1) % SENSOR_CONSISTENCY_CHECKS;
 }
 
@@ -1334,6 +1378,7 @@ void attemptSystemRecovery() {
   sensorValidation.temperatureValid = true;
   sensorValidation.humidityValid = true;
   sensorValidation.soilMoistureValid = true;
+  sensorValidation.lightLevelValid = true;
   sensorValidation.disconnectCount = 0;
   
   // Reset error counters

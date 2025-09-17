@@ -52,6 +52,8 @@ struct SystemState {
   float humidity = 0.0;
   int soilMoistureRaw = 0;
   int soilMoisturePercent = 0;
+  int lightLevelRaw = 0;
+  int lightLevelPercent = 0;
   bool pumpActive = false;
   bool systemOK = true;
   bool emergencyStop = false;
@@ -86,13 +88,16 @@ struct SensorValidation {
   float lastTemperature = 0.0;
   float lastHumidity = 0.0;
   int lastSoilMoisture = 0;
+  int lastLightLevel = 0;
   int temperatureReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
   int humidityReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
   int soilMoistureReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
+  int lightLevelReadings[SENSOR_CONSISTENCY_CHECKS] = {0};
   int readingIndex = 0;
   bool temperatureValid = true;
   bool humidityValid = true;
   bool soilMoistureValid = true;
+  bool lightLevelValid = true;
   int disconnectCount = 0;
 } sensorValidation;
 
@@ -378,8 +383,24 @@ void readSensors() {
   int soilMoisturePercent = map(soilMoistureRaw, SOIL_MOISTURE_WET_VALUE, SOIL_MOISTURE_DRY_VALUE, 100, 0);
   soilMoisturePercent = constrain(soilMoisturePercent, 0, 100);
   
+  // Read LDR sensor (if enabled)
+  int lightLevelRaw = 0;
+  int lightLevelPercent = 0;
+  
+  #if LDR_ENABLED
+    lightLevelRaw = analogRead(LDR_PIN);
+    
+    // Convert raw reading to percentage (inverted: high value = dark, low value = bright)
+    lightLevelPercent = map(lightLevelRaw, LDR_DARK_VALUE, LDR_BRIGHT_VALUE, 0, 100);
+    lightLevelPercent = constrain(lightLevelPercent, 0, 100);
+  #else
+    // No LDR sensor - use default values
+    lightLevelRaw = 2048;  // Default middle value
+    lightLevelPercent = 50; // Default 50% light level
+  #endif
+  
   // Validate sensor readings
-  validateSensorReadings(temperature, humidity, soilMoisturePercent);
+  validateSensorReadings(temperature, humidity, soilMoisturePercent, lightLevelPercent);
   
   // Only update system state if readings are valid
   if (sensorValidation.temperatureValid && sensorValidation.humidityValid && sensorValidation.soilMoistureValid) {
@@ -387,6 +408,8 @@ void readSensors() {
     systemState.humidity = humidity;
     systemState.soilMoistureRaw = soilMoistureRaw;
     systemState.soilMoisturePercent = soilMoisturePercent;
+    systemState.lightLevelRaw = lightLevelRaw;
+    systemState.lightLevelPercent = lightLevelPercent;
     
     // Reset sensor error counter on successful reading
     systemState.sensorErrors = 0;
@@ -402,6 +425,7 @@ void readSensors() {
     Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
     Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
     Serial.println("  Soil Moisture: " + String(soilMoisturePercent) + "% (Valid: " + String(sensorValidation.soilMoistureValid ? "Yes" : "No") + ")");
+    Serial.println("  Light Level: " + String(lightLevelPercent) + "% (Valid: " + String(sensorValidation.lightLevelValid ? "Yes" : "No") + ")");
   }
 }
 
@@ -452,9 +476,9 @@ void displaySensorData() {
     
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Soil Moisture:");
+    lcd.print("Soil: " + String(systemState.soilMoisturePercent) + "%");
     lcd.setCursor(0, 1);
-    lcd.print(String(systemState.soilMoisturePercent) + "%");
+    lcd.print("Light: " + String(systemState.lightLevelPercent) + "%");
   #endif
 }
 
@@ -707,7 +731,7 @@ void emergencyStop() {
   Serial.println("System halted due to emergency stop!");
 }
 
-void validateSensorReadings(float temperature, float humidity, int soilMoisture) {
+void validateSensorReadings(float temperature, float humidity, int soilMoisture, int lightLevel) {
   // Validate temperature
   sensorValidation.temperatureValid = isSensorReadingValid(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE, TEMPERATURE_VALIDATION);
   
@@ -716,6 +740,9 @@ void validateSensorReadings(float temperature, float humidity, int soilMoisture)
   
   // Validate soil moisture
   sensorValidation.soilMoistureValid = isSensorReadingValid(soilMoisture, MIN_SOIL_MOISTURE, MAX_SOIL_MOISTURE, SOIL_MOISTURE_VALIDATION);
+  
+  // Validate light level
+  sensorValidation.lightLevelValid = isSensorReadingValid(lightLevel, MIN_LIGHT_LEVEL, MAX_LIGHT_LEVEL, LIGHT_VALIDATION);
   
   // Check for sudden changes in soil moisture
   if (SOIL_MOISTURE_VALIDATION && sensorValidation.soilMoistureValid) {
@@ -726,22 +753,34 @@ void validateSensorReadings(float temperature, float humidity, int soilMoisture)
     }
   }
   
+  // Check for sudden changes in light level
+  if (LIGHT_VALIDATION && sensorValidation.lightLevelValid) {
+    int change = abs(lightLevel - sensorValidation.lastLightLevel);
+    if (change > MAX_LIGHT_CHANGE) {
+      Serial.println("Warning: Sudden light level change detected: " + String(change) + "%");
+      sensorValidation.lightLevelValid = false;
+    }
+  }
+  
   // Check sensor consistency
   if (CONSISTENCY_VALIDATION) {
     sensorValidation.temperatureValid &= checkSensorConsistency(sensorValidation.temperatureReadings, (int)(temperature * 10));
     sensorValidation.humidityValid &= checkSensorConsistency(sensorValidation.humidityReadings, (int)(humidity * 10));
     sensorValidation.soilMoistureValid &= checkSensorConsistency(sensorValidation.soilMoistureReadings, soilMoisture);
+    sensorValidation.lightLevelValid &= checkSensorConsistency(sensorValidation.lightLevelReadings, lightLevel);
   }
   
   // Update last readings
   sensorValidation.lastTemperature = temperature;
   sensorValidation.lastHumidity = humidity;
   sensorValidation.lastSoilMoisture = soilMoisture;
+  sensorValidation.lastLightLevel = lightLevel;
   
   // Update reading arrays for consistency checking
   sensorValidation.temperatureReadings[sensorValidation.readingIndex] = (int)(temperature * 10);
   sensorValidation.humidityReadings[sensorValidation.readingIndex] = (int)(humidity * 10);
   sensorValidation.soilMoistureReadings[sensorValidation.readingIndex] = soilMoisture;
+  sensorValidation.lightLevelReadings[sensorValidation.readingIndex] = lightLevel;
   sensorValidation.readingIndex = (sensorValidation.readingIndex + 1) % SENSOR_CONSISTENCY_CHECKS;
 }
 
@@ -772,6 +811,7 @@ void attemptSystemRecovery() {
   sensorValidation.temperatureValid = true;
   sensorValidation.humidityValid = true;
   sensorValidation.soilMoistureValid = true;
+  sensorValidation.lightLevelValid = true;
   sensorValidation.disconnectCount = 0;
   
   // Reset error counters
@@ -823,13 +863,13 @@ void displayAllInfo() {
     lcd.setCursor(0, 0);
     lcd.print("T:" + String(systemState.temperature, 1) + "C H:" + String(systemState.humidity, 1) + "%");
     
-    // Line 2: Soil Moisture and Pump Status
+    // Line 2: Soil Moisture and Light Level
     lcd.setCursor(0, 1);
-    lcd.print("Soil:" + String(systemState.soilMoisturePercent) + "% Pump:" + String(systemState.pumpActive ? "ON" : "OFF"));
+    lcd.print("Soil:" + String(systemState.soilMoisturePercent) + "% Light:" + String(systemState.lightLevelPercent) + "%");
     
-    // Line 3: System Status
+    // Line 3: Pump Status and System Status
     lcd.setCursor(0, 2);
-    lcd.print("Status:" + String(systemState.systemOK ? "OK" : "ERROR") + " Errors:" + String(systemState.sensorErrors));
+    lcd.print("Pump:" + String(systemState.pumpActive ? "ON" : "OFF") + " Status:" + String(systemState.systemOK ? "OK" : "ERROR"));
     
     // Line 4: Daily Irrigations and Uptime
     lcd.setCursor(0, 3);

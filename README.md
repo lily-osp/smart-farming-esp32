@@ -37,6 +37,7 @@ smart_farming/
 │   ├── styles.css               # Custom CSS styles
 │   ├── script.js                # Interactive JavaScript
 │   └── README.md                # Documentation guide
+├── configuration.md            # Comprehensive configuration guide
 ├── wiring_diagram.md           # Wiring instructions with Mermaid
 ├── libraries.txt              # Required Arduino libraries
 ├── LICENSE                     # MIT License
@@ -64,6 +65,7 @@ This smart farming system is designed to automate irrigation processes while pro
 
 - **Soil Moisture Monitoring**: Analog sensor with configurable thresholds
 - **Environmental Sensing**: DHT11/DHT22 temperature and humidity monitoring
+- **Light Level Monitoring**: LDR sensor for ambient light detection
 - **Automated Irrigation**: Relay-controlled water pump with safety timers
 - **Visual Feedback**: LED status indicators and optional LCD displays
 - **Data Logging**: Comprehensive system state tracking
@@ -94,20 +96,21 @@ This smart farming system is designed to automate irrigation processes while pro
 | --------------------------------- | ------------------------- | ----------------------- | ----------------------------------- |
 | **ESP32 Development Board** | ESP32-WROOM-32 or similar | Main controller         | Must support WiFi and ADC           |
 | **Soil Moisture Sensor**    | Analog capacitive sensor  | Soil moisture detection | 0-3.3V output range                 |
-| **DHT Sensor**              | DHT11 or DHT22            | Temperature/humidity    | Digital sensor with 1-wire protocol |
 | **Relay Module**            | 5V SPDT relay             | Pump control            | Must handle pump current            |
 | **Water Pump**              | 12V DC submersible        | Irrigation              | Match relay specifications          |
 | **Power Supply**            | 5V/3.3V adapter           | System power            | Minimum 2A capacity                 |
 
 ### Optional Components
 
-| Component              | Specification       | Purpose           | Notes                          |
-| ---------------------- | ------------------- | ----------------- | ------------------------------ |
-| **LCD Display**  | 1602 or 2004 I2C    | Visual monitoring | Optional - see Display Options |
-| **LEDs**         | 5mm standard        | Status indication | Green, Red, Blue               |
-| **Resistors**    | 220Ω, 10kΩ        | Current limiting  | For LEDs and pull-ups          |
-| **Breadboard**   | Half-size           | Prototyping       | For development                |
-| **Jumper Wires** | Male-to-male/female | Connections       | Various lengths                |
+| Component                         | Specification             | Purpose                 | Notes                               |
+| --------------------------------- | ------------------------- | ----------------------- | ----------------------------------- |
+| **DHT Sensor**              | DHT11 or DHT22            | Temperature/humidity    | Digital sensor with 1-wire protocol |
+| **LDR Sensor**              | Light Dependent Resistor  | Ambient light detection | Analog sensor with voltage divider  |
+| **LCD Display**             | 1602 or 2004 I2C          | Visual monitoring       | Optional - see Display Options      |
+| **LEDs**                    | 5mm standard              | Status indication       | Green, Red, Blue                   |
+| **Resistors**               | 220Ω, 10kΩ              | Current limiting        | For LEDs and pull-ups              |
+| **Breadboard**              | Half-size                 | Prototyping             | For development                    |
+| **Jumper Wires**            | Male-to-male/female       | Connections             | Various lengths                    |
 
 ### Pin Connections
 
@@ -184,14 +187,15 @@ lib_deps =
 
 ```
 ESP32                    Components
-├── GPIO 21 ──────────── LCD SDA (I2C)
-├── GPIO 22 ──────────── LCD SCL (I2C)
-├── GPIO 5 ───────────── DHT Data Pin
-├── GPIO 36 ──────────── Soil Moisture Sensor (Analog)
-├── GPIO 19 ──────────── Relay Control Pin
-├── GPIO 18 ──────────── Green LED (220Ω resistor)
-├── GPIO 23 ──────────── Red LED (220Ω resistor)
-├── GPIO 2 ───────────── Blue LED (220Ω resistor)
+├── GPIO 21 ──────────── LCD SDA (I2C) - Optional
+├── GPIO 22 ──────────── LCD SCL (I2C) - Optional
+├── GPIO 5 ───────────── DHT Data Pin - Optional
+├── GPIO 36 ──────────── Soil Moisture Sensor (Analog) - Required
+├── GPIO 39 ──────────── LDR Sensor (Analog) - Optional
+├── GPIO 19 ──────────── Relay Control Pin - Required
+├── GPIO 18 ──────────── Green LED (220Ω resistor) - Optional
+├── GPIO 23 ──────────── Red LED (220Ω resistor) - Optional
+├── GPIO 2 ───────────── Blue LED (220Ω resistor) - Optional
 ├── 3.3V ─────────────── Sensor VCC, Relay VCC
 ├── GND ──────────────── Common Ground
 └── 5V ───────────────── Relay VCC (if 5V relay)
@@ -206,8 +210,9 @@ ESP32                    Components
    - Use external 5V supply for relay if needed
 2. **Sensor Connections**
 
-   - **DHT Sensor**: Data pin to GPIO 5, VCC to 3.3V, GND to ground
-   - **Soil Moisture**: Signal to GPIO 36, VCC to 3.3V, GND to ground
+   - **Soil Moisture**: Signal to GPIO 36, VCC to 3.3V, GND to ground (Required)
+   - **DHT Sensor**: Data pin to GPIO 5, VCC to 3.3V, GND to ground (Optional)
+   - **LDR Sensor**: Signal to GPIO 39, VCC to 3.3V, GND to ground (with 10kΩ pull-down resistor) (Optional)
 3. **Display Connections** (if using LCD)
 
    - **LCD I2C**: SDA to GPIO 21, SCL to GPIO 22, VCC to 3.3V, GND to ground
@@ -242,6 +247,8 @@ ESP32                    Components
 
 ## Configuration Guide
 
+> **📋 For a comprehensive configuration guide with detailed comparisons, pros/cons, and recommended setups, see [configuration.md](configuration.md)**
+
 ### Basic Configuration (`config.h`)
 
 #### System Settings
@@ -268,6 +275,13 @@ ESP32                    Components
 // DHT Sensor
 #define DHT_TYPE DHT22                    // DHT11 or DHT22
 #define DHT_READ_INTERVAL 2000           // DHT reading interval (ms)
+
+// LDR Sensor (Optional)
+#define LDR_SENSOR_TYPE LDR_NONE         // LDR_NONE or LDR_ENABLED
+#define LDR_DARK_VALUE 4095              // Dark reading (complete darkness)
+#define LDR_BRIGHT_VALUE 0               // Bright reading (full light)
+#define LDR_LOW_LIGHT_THRESHOLD 20       // Low light threshold (%)
+#define LDR_HIGH_LIGHT_THRESHOLD 80      // High light threshold (%)
 ```
 
 #### Display Configuration

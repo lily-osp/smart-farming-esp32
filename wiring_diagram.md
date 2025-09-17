@@ -2,6 +2,8 @@
 
 This document provides detailed wiring instructions for the ESP32 Smart Farming System.
 
+> **📋 For comprehensive configuration options, pros/cons, and recommended setups, see [configuration.md](configuration.md)**
+
 ## Component Overview
 
 ### Required Components
@@ -18,6 +20,9 @@ This document provides detailed wiring instructions for the ESP32 Smart Farming 
   - DHT11 Temperature/Humidity Sensor
   - DHT22 Temperature/Humidity Sensor (more accurate)
   - No temperature/humidity sensor (soil moisture only)
+- **Light Sensor Options**:
+  - LDR Sensor (Light Dependent Resistor)
+  - No light sensor (soil moisture only)
 - **Display Options**:
   - LCD 1602 with I2C Backpack (16x2 characters)
   - LCD 2004 with I2C Backpack (20x4 characters)
@@ -39,6 +44,8 @@ This document provides detailed wiring instructions for the ESP32 Smart Farming 
 | Blue LED | GPIO 2 | Digital Output | WiFi status (online version) |
 | **Temperature/Humidity Sensor** (Optional) | | | |
 | DHT Data | GPIO 5 | Digital Input | Connect to data pin of DHT sensor |
+| **Light Sensor** (Optional) | | | |
+| LDR Sensor | GPIO 39 | Analog Input | Connect to voltage divider output |
 | **Display System** (Optional) | | | |
 | LCD SDA | GPIO 21 | I2C Data | Connect to SDA on I2C backpack |
 | LCD SCL | GPIO 22 | I2C Clock | Connect to SCL on I2C backpack |
@@ -89,14 +96,29 @@ DHT Data → 10kΩ Pull-up Resistor → 3.3V
 - System uses default temperature (25°C) and humidity (50%) values
 - Only soil moisture monitoring available
 
-### 4. Soil Moisture Sensor
+### 4. Light Sensor (Optional)
+
+#### LDR Sensor (Light Dependent Resistor)
+```
+LDR VCC → 3.3V
+LDR GND → GND
+LDR Signal → GPIO 39 (ADC1_CH3)
+10kΩ Resistor → Between LDR Signal and GND (Pull-down)
+```
+
+#### No Light Sensor
+- Skip LDR connections
+- System uses default light level (50%) values
+- Only soil moisture and temperature/humidity monitoring available
+
+### 5. Soil Moisture Sensor
 ```
 Sensor VCC → 3.3V
 Sensor GND → GND
 Sensor A0 → GPIO 36 (ADC1_CH0)
 ```
 
-### 5. Relay Module
+### 6. Relay Module
 ```
 Relay VCC → 5V
 Relay GND → GND
@@ -105,7 +127,7 @@ Relay NO → Water Pump (+)
 Relay COM → Power Supply (+)
 ```
 
-### 6. Control System (Optional)
+### 7. Control System (Optional)
 
 #### Rotary Encoder
 ```
@@ -128,7 +150,7 @@ Potentiometer Pin 3 → GND
 - System uses default thresholds
 - Fully automated operation
 
-### 7. Status LEDs
+### 8. Status LEDs
 ```
 Green LED (+) → GPIO 18
 Green LED (-) → 220Ω Resistor → GND
@@ -140,7 +162,7 @@ Blue LED (+) → GPIO 2
 Blue LED (-) → 220Ω Resistor → GND
 ```
 
-### 8. Emergency Stop (Optional)
+### 9. Emergency Stop (Optional)
 ```
 Emergency Button Pin 1 → GPIO 0
 Emergency Button Pin 2 → GND
@@ -172,6 +194,7 @@ graph TB
             GPIO4[GPIO 4<br/>Encoder SW]
             GPIO34[GPIO 34<br/>Potentiometer]
             GPIO36[GPIO 36<br/>Soil Moisture]
+            GPIO39[GPIO 39<br/>LDR Sensor]
             GPIO0[GPIO 0<br/>Emergency Stop]
         end
     end
@@ -187,6 +210,7 @@ graph TB
     subgraph "Optional Sensors"
         DHT11[DHT11 Sensor<br/>Temperature/Humidity<br/>OPTIONAL]
         DHT22[DHT22 Sensor<br/>Temperature/Humidity<br/>OPTIONAL]
+        LDR[LDR Sensor<br/>Light Detection<br/>OPTIONAL]
     end
     
     subgraph "Optional Display"
@@ -217,6 +241,7 @@ graph TB
     %% Optional Sensor Connections
     DHT11 -.-> GPIO5
     DHT22 -.-> GPIO5
+    LDR -.-> GPIO39
     
     %% Optional Display Connections
     LCD1602 -.-> GPIO21
@@ -344,9 +369,10 @@ graph TB
 2. **Sensors Not Reading**
    - **Soil Moisture**: Verify GPIO 36 connection, check power supply (3.3V)
    - **DHT Sensor**: Check GPIO 5 connection, verify pull-up resistor (10kΩ)
+   - **LDR Sensor**: Verify GPIO 39 connection, check 10kΩ pull-down resistor
    - **Power Supply**: Ensure 3.3V for all sensors
    - **Grounding**: Ensure proper grounding for all sensors
-   - **Configuration**: Check DHT_SENSOR_TYPE setting in config.h
+   - **Configuration**: Check DHT_SENSOR_TYPE and LDR_SENSOR_TYPE settings in config.h
 
 3. **Relay Not Working**
    - Check relay control pin connection
@@ -417,7 +443,7 @@ Before testing, ensure your `config.h` settings match your hardware:
 
 #### Pin Verification
 - **Core Pins**: GPIO 36 (Soil), GPIO 19 (Relay)
-- **Sensor Pins**: GPIO 5 (DHT) - if DHT enabled
+- **Sensor Pins**: GPIO 5 (DHT) - if DHT enabled, GPIO 39 (LDR) - if LDR enabled
 - **LED Pins**: GPIO 18 (Green), GPIO 23 (Red), GPIO 2 (Blue)
 - **Display Pins**: GPIO 21 (SDA), GPIO 22 (SCL) - if display enabled
 - **Control Pins**: GPIO 16,17,4 (Encoder) or GPIO 34 (Potentiometer) - if control enabled

@@ -96,8 +96,17 @@
 #define DHT11 1
 #define DHT22 2
 
+// LDR Sensor Selection
+// Options: LDR_NONE, LDR_ENABLED
+#define LDR_SENSOR_TYPE LDR_NONE
+
+// LDR Sensor Type Definitions
+#define LDR_NONE 0
+#define LDR_ENABLED 1
+
 // Sensor Pins
 #define SOIL_MOISTURE_PIN 36  // ADC1_CH0
+#define LDR_PIN 39            // ADC1_CH3 - GPIO39 for LDR sensor
 
 // DHT Sensor Configuration (conditional)
 #if DHT_SENSOR_TYPE == DHT11
@@ -113,8 +122,10 @@
 
 // Sensor Features
 #define DHT_ENABLED (DHT_SENSOR_TYPE != DHT_NONE)
+#define LDR_ENABLED (LDR_SENSOR_TYPE != LDR_NONE)
 #define TEMPERATURE_MONITORING_ENABLED DHT_ENABLED
 #define HUMIDITY_MONITORING_ENABLED DHT_ENABLED
+#define LIGHT_MONITORING_ENABLED LDR_ENABLED
 
 // Actuator Pins
 #define RELAY_PIN 19
@@ -132,6 +143,13 @@
 #define SOIL_MOISTURE_DRY_VALUE 4095    // Value when sensor is in air (dry)
 #define SOIL_MOISTURE_WET_VALUE 0       // Value when sensor is in water (wet)
 #define SOIL_MOISTURE_THRESHOLD 30      // Percentage threshold for irrigation (0-100%)
+
+// LDR Sensor Calibration
+#define LDR_DARK_VALUE 4095             // Value when sensor is in complete darkness
+#define LDR_BRIGHT_VALUE 0              // Value when sensor is in bright light
+#define LDR_READ_INTERVAL 1000          // Minimum interval between LDR readings (ms)
+#define LDR_LOW_LIGHT_THRESHOLD 20      // Percentage threshold for low light detection (0-100%)
+#define LDR_HIGH_LIGHT_THRESHOLD 80     // Percentage threshold for high light detection (0-100%)
 
 // DHT Sensor Settings
 #define DHT_READ_INTERVAL 2000  // Minimum interval between DHT readings (ms)
@@ -214,6 +232,12 @@
 #define SOIL_MOISTURE_VALIDATION true   // Enable soil moisture validation
 #define MAX_SOIL_MOISTURE_CHANGE 20     // Maximum change between readings (%)
 
+// LDR Sensor Validation
+#define MIN_LIGHT_LEVEL 0               // Minimum valid light level (%)
+#define MAX_LIGHT_LEVEL 100             // Maximum valid light level (%)
+#define LIGHT_VALIDATION true           // Enable light level validation
+#define MAX_LIGHT_CHANGE 30             // Maximum change between readings (%)
+
 // Sensor Consistency
 #define SENSOR_CONSISTENCY_CHECKS 3     // Number of readings for consistency check
 #define SENSOR_CONSISTENCY_THRESHOLD 5  // Maximum deviation for consistent readings
@@ -249,6 +273,7 @@
 #define ADAFRUIT_IO_TEMPERATURE_FEED "temperature"
 #define ADAFRUIT_IO_HUMIDITY_FEED "humidity"
 #define ADAFRUIT_IO_SOIL_MOISTURE_FEED "soil-moisture"
+#define ADAFRUIT_IO_LIGHT_LEVEL_FEED "light-level"
 #define ADAFRUIT_IO_PUMP_STATUS_FEED "pump-status"
 #define ADAFRUIT_IO_IRRIGATION_COUNT_FEED "irrigation-count"
 
