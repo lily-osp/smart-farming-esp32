@@ -147,28 +147,76 @@ function initInteractiveElements() {
 
 // Theme toggle functionality
 function initThemeToggle() {
-    // Check for saved theme preference or default to light mode
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', currentTheme);
+    // Check for saved theme preference, system preference, or default to light mode
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
     
+    // Set initial theme
+    setTheme(currentTheme);
+
     // Create theme toggle button
     const themeToggle = document.createElement('button');
-    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-    themeToggle.className = 'fixed bottom-4 right-4 bg-primary text-white w-12 h-12 rounded-full shadow-lg hover:bg-secondary transition z-50';
-    themeToggle.title = 'Toggle theme';
-    
+    themeToggle.id = 'themeToggle';
+    themeToggle.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    themeToggle.className = 'fixed bottom-4 right-4 bg-primary text-white w-12 h-12 rounded-full shadow-lg hover:bg-secondary transition z-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2';
+    themeToggle.setAttribute('aria-label', 'Toggle dark mode');
+
     document.body.appendChild(themeToggle);
-    
+
     // Theme toggle functionality
     themeToggle.addEventListener('click', function() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+        // Add rotation animation
+        this.classList.add('rotating');
+        setTimeout(() => {
+            this.classList.remove('rotating');
+        }, 600);
         
-        this.innerHTML = newTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        setTheme(newTheme);
     });
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+            setTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+}
+
+// Set theme function
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    // Update theme toggle button icon
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.innerHTML = theme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    }
+    
+    // Update search input styling
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        // Force re-application of styles
+        searchInput.style.backgroundColor = '';
+        searchInput.style.borderColor = '';
+        searchInput.style.color = '';
+        // Trigger a reflow to ensure styles are applied
+        searchInput.offsetHeight;
+    }
+    
+    // Dispatch theme change event
+    window.dispatchEvent(new CustomEvent('themeChanged', { 
+        detail: { theme: theme } 
+    }));
+}
+
+// Get current theme
+function getCurrentTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'light';
 }
 
 // Search functionality
@@ -240,13 +288,13 @@ function displaySearchResults(results) {
     const searchResults = document.getElementById('searchResults');
     
     if (results.length === 0) {
-        searchResults.innerHTML = '<div class="p-4 text-gray-500">No results found</div>';
+        searchResults.innerHTML = '<div class="p-4 text-gray-500 search-no-results">No results found</div>';
     } else {
         searchResults.innerHTML = results.map(result => `
-            <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+            <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 search-result-item" 
                  onclick="scrollToSection('${result.sectionId}')">
-                <div class="font-semibold text-sm text-primary">${result.section}</div>
-                <div class="text-sm text-gray-600 mt-1">${result.text}</div>
+                <div class="font-semibold text-sm text-primary search-result-title">${result.section}</div>
+                <div class="text-sm text-gray-600 mt-1 search-result-snippet">${result.text}</div>
             </div>
         `).join('');
     }
@@ -379,7 +427,14 @@ function initLanguageSwitcher() {
     // Toggle dropdown
     langSwitcher.addEventListener('click', function(e) {
         e.stopPropagation();
-        langDropdown.classList.toggle('hidden');
+        const isHidden = langDropdown.classList.contains('hidden');
+        if (isHidden) {
+            langDropdown.classList.remove('hidden');
+            langDropdown.classList.add('show');
+        } else {
+            langDropdown.classList.add('hidden');
+            langDropdown.classList.remove('show');
+        }
     });
     
     // Handle language selection
@@ -394,6 +449,7 @@ function initLanguageSwitcher() {
     // Close dropdown when clicking outside
     document.addEventListener('click', function() {
         langDropdown.classList.add('hidden');
+        langDropdown.classList.remove('show');
     });
     
     // Prevent dropdown from closing when clicking inside
@@ -461,14 +517,18 @@ function initMobileNavigation() {
     
     // Toggle mobile menu
     mobileMenuButton.addEventListener('click', function() {
-        mobileMenu.classList.toggle('hidden');
-        menuIcon.classList.toggle('rotated');
+        const isHidden = mobileMenu.classList.contains('hidden');
         
-        // Change icon
-        if (mobileMenu.classList.contains('hidden')) {
-            menuIcon.className = 'fas fa-bars text-xl';
+        if (isHidden) {
+            // Show menu
+            mobileMenu.classList.remove('hidden');
+            menuIcon.classList.add('rotated');
+            menuIcon.className = 'fas fa-times text-xl transition-transform duration-300 ease-out';
         } else {
-            menuIcon.className = 'fas fa-times text-xl';
+            // Hide menu
+            mobileMenu.classList.add('hidden');
+            menuIcon.classList.remove('rotated');
+            menuIcon.className = 'fas fa-bars text-xl transition-transform duration-300 ease-out';
         }
     });
     
@@ -476,7 +536,7 @@ function initMobileNavigation() {
     mobileNavLinks.forEach(link => {
         link.addEventListener('click', function() {
             mobileMenu.classList.add('hidden');
-            menuIcon.className = 'fas fa-bars text-xl';
+            menuIcon.className = 'fas fa-bars text-xl transition-transform duration-300 ease-out';
             menuIcon.classList.remove('rotated');
         });
     });
@@ -484,7 +544,14 @@ function initMobileNavigation() {
     // Mobile language switcher
     mobileLangSwitcher.addEventListener('click', function(e) {
         e.stopPropagation();
-        mobileLangDropdown.classList.toggle('hidden');
+        const isHidden = mobileLangDropdown.classList.contains('hidden');
+        if (isHidden) {
+            mobileLangDropdown.classList.remove('hidden');
+            mobileLangDropdown.classList.add('show');
+        } else {
+            mobileLangDropdown.classList.add('hidden');
+            mobileLangDropdown.classList.remove('show');
+        }
     });
     
     // Handle mobile language selection
@@ -493,6 +560,7 @@ function initMobileNavigation() {
             const selectedLang = this.getAttribute('data-lang');
             setLanguage(selectedLang);
             mobileLangDropdown.classList.add('hidden');
+            mobileLangDropdown.classList.remove('show');
         });
     });
     
@@ -500,6 +568,7 @@ function initMobileNavigation() {
     document.addEventListener('click', function(e) {
         if (!mobileLangSwitcher.contains(e.target) && !mobileLangDropdown.contains(e.target)) {
             mobileLangDropdown.classList.add('hidden');
+            mobileLangDropdown.classList.remove('show');
         }
     });
     
@@ -513,7 +582,7 @@ function initMobileNavigation() {
     document.addEventListener('click', function(e) {
         if (!mobileMenuButton.contains(e.target) && !mobileMenu.contains(e.target)) {
             mobileMenu.classList.add('hidden');
-            menuIcon.className = 'fas fa-bars text-xl';
+            menuIcon.className = 'fas fa-bars text-xl transition-transform duration-300 ease-out';
             menuIcon.classList.remove('rotated');
         }
     });
@@ -522,7 +591,7 @@ function initMobileNavigation() {
     window.addEventListener('resize', function() {
         if (window.innerWidth >= 768) {
             mobileMenu.classList.add('hidden');
-            menuIcon.className = 'fas fa-bars text-xl';
+            menuIcon.className = 'fas fa-bars text-xl transition-transform duration-300 ease-out';
             menuIcon.classList.remove('rotated');
         }
     });
@@ -564,3 +633,5 @@ window.searchContent = searchContent;
 window.displaySearchResults = displaySearchResults;
 window.setLanguage = setLanguage;
 window.getCurrentLanguage = getCurrentLanguage;
+window.setTheme = setTheme;
+window.getCurrentTheme = getCurrentTheme;
