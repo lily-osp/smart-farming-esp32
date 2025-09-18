@@ -30,8 +30,10 @@ This folder contains the comprehensive web-based documentation for the ESP32 Sma
 - **Quick Start**: Step-by-step getting started guide with Arduino IDE structure
 - **Project Overview**: Key features and updated project structure
 - **Hardware Requirements**: Detailed component specifications
-- **Software Features**: Offline vs online version comparison
-- **Setup Guide**: Comprehensive installation instructions with new file paths
+- **Software Features**: Offline vs online version comparison with configurable serial output
+- **Configuration Options**: Display, control, sensor, and serial output options
+- **Serial Output Configuration**: Detailed serial output configuration guide
+- **Setup Guide**: Comprehensive installation instructions with configuration examples
 - **Testing Guide**: Hardware and communication testing procedures
 - **API Documentation**: REST API endpoints and examples
 - **Troubleshooting**: Common issues and solutions

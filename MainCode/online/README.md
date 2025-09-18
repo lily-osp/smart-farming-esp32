@@ -28,6 +28,8 @@ The online version extends the offline functionality with internet connectivity,
 - **JSON API**: RESTful API for integration with other systems
 - **Data Analytics**: Historical data analysis and trends
 - **Remote Alerts**: Email and notification systems
+- **IoT Services Control**: Master switch for all IoT services
+- **Web UI Only Mode**: Option to use only built-in web interface
 
 ### Display Options
 - **LCD 1602**: 16x2 character display with cycling screens
@@ -113,6 +115,10 @@ Edit `config.h` to match your hardware setup and network configuration:
 #define WIFI_SSID "YOUR_WIFI_SSID"
 #define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 
+// IoT Services Configuration
+#define IOT_SERVICES_ENABLED true          // Master switch for all IoT services
+#define WEB_UI_ONLY_MODE false            // Enable web UI only mode
+
 // ThingSpeak Configuration
 #define THINGSPEAK_ENABLED true
 #define THINGSPEAK_API_KEY "YOUR_THINGSPEAK_API_KEY"
@@ -182,8 +188,22 @@ Edit `config.h` to match your hardware setup and network configuration:
 #define DISPLAY_TYPE DISPLAY_LCD_2004
 #define CONTROL_TYPE CONTROL_ROTARY_ENCODER
 #define LDR_SENSOR_TYPE LDR_TYPE_ENABLED
+#define IOT_SERVICES_ENABLED true
+#define WEB_UI_ONLY_MODE false
 #define THINGSPEAK_ENABLED true
 #define ADAFRUIT_IO_ENABLED true
+```
+
+### Web UI Only Setup (No Cloud Services)
+```cpp
+#define DHT_SENSOR_TYPE DHT_TYPE_22
+#define DISPLAY_TYPE DISPLAY_LCD_1602
+#define CONTROL_TYPE CONTROL_ROTARY_ENCODER
+#define LDR_SENSOR_TYPE LDR_NONE
+#define IOT_SERVICES_ENABLED false
+#define WEB_UI_ONLY_MODE true
+#define THINGSPEAK_ENABLED false
+#define ADAFRUIT_IO_ENABLED false
 ```
 
 ## Usage

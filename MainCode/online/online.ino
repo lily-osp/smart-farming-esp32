@@ -26,7 +26,9 @@
 #include <WebServer.h>
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 #include <AdafruitIO_WiFi.h>
+#endif
 #include <esp_task_wdt.h>
 #include <Arduino.h>
 
@@ -57,7 +59,9 @@
 WebServer server(WEB_SERVER_PORT);
 
 // Adafruit IO Object
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 AdafruitIO_WiFi io(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY, WIFI_SSID, WIFI_PASSWORD);
+#endif
 
 // System State Variables
 struct SystemState {
@@ -87,7 +91,9 @@ struct SystemState {
   unsigned long lastErrorCheck = 0;
   unsigned long lastWatchdogFeed = 0;
   String lastTransmissionStatus = "Not attempted";
+  #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
   String lastAdafruitIOStatus = "Not attempted";
+  #endif
   
   // Control System State
   #if CONTROL_TYPE == CONTROL_ROTARY_ENCODER
@@ -128,12 +134,14 @@ const int maxWifiReconnectAttempts = 10;
 bool otaEnabled = false;
 
 // Adafruit IO Feed Objects
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 AdafruitIO_Feed *temperatureFeed;
 AdafruitIO_Feed *humidityFeed;
 AdafruitIO_Feed *soilMoistureFeed;
 AdafruitIO_Feed *lightLevelFeed;
 AdafruitIO_Feed *pumpStatusFeed;
 AdafruitIO_Feed *irrigationCountFeed;
+#endif
 
 // Data Logging
 struct DataLog {
@@ -162,7 +170,9 @@ void initializeSensors();
 void initializeDisplay();
 void initializeActuators();
 void initializeWiFi();
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 void initializeAdafruitIO();
+#endif
 void initializeOTA();
 void initializeWebServer();
 void initializeWatchdog();
@@ -196,7 +206,9 @@ void loadSettings();
 // Network Functions
 void checkWiFiConnection();
 void transmitDataToCloud();
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 void transmitDataToAdafruitIO();
+#endif
 void handleWebRequests();
 void emergencyStop();
 void feedWatchdog();
@@ -228,21 +240,25 @@ String getSystemStatusJSON();
 
 void setup() {
   // Initialize Serial Communication
-  Serial.begin(SERIAL_BAUD_RATE);
-  delay(1000);
-  
-  Serial.println("========================================");
-  Serial.println("ESP32 Smart Farming System - Online");
-  Serial.println("Version: " + String(FIRMWARE_VERSION));
-  Serial.println("Build Date: " + String(BUILD_DATE) + " " + String(BUILD_TIME));
-  Serial.println("========================================");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.begin(SERIAL_BAUD_RATE);
+    delay(1000);
+    
+    Serial.println("========================================");
+    Serial.println("ESP32 Smart Farming System - Online");
+    Serial.println("Version: " + String(FIRMWARE_VERSION));
+    Serial.println("Build Date: " + String(BUILD_DATE) + " " + String(BUILD_TIME));
+    Serial.println("========================================");
+  #endif
   
   // Initialize System Components
   initializeSystem();
   
-  Serial.println("System initialization complete!");
-  Serial.println("Starting main loop...");
-  Serial.println("========================================");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("System initialization complete!");
+    Serial.println("Starting main loop...");
+    Serial.println("========================================");
+  #endif
 }
 
 // =============================================================================
@@ -308,14 +324,18 @@ void loop() {
       currentTime - systemState.lastDataTransmission >= DATA_TRANSMISSION_INTERVAL) {
     
     // Transmit to ThingSpeak
+    #if IOT_SERVICES_ENABLED
     if (THINGSPEAK_ENABLED) {
       transmitDataToCloud();
     }
+    #endif
     
     // Transmit to Adafruit IO
+    #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
     if (ADAFRUIT_IO_ENABLED) {
       transmitDataToAdafruitIO();
     }
+    #endif
     
     systemState.lastDataTransmission = currentTime;
   }
@@ -349,7 +369,9 @@ void loop() {
 // =============================================================================
 
 void initializeSystem() {
-  Serial.println("Initializing system components...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing system components...");
+  #endif
   
   // Initialize sensors
   initializeSensors();
@@ -367,7 +389,9 @@ void initializeSystem() {
   initializeWiFi();
   
   // Initialize Adafruit IO
+  #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
   initializeAdafruitIO();
+  #endif
   
   // Initialize OTA
   initializeOTA();
@@ -389,11 +413,15 @@ void initializeSystem() {
   // Clear data log
   clearDataLog();
   
-  Serial.println("System components initialized successfully!");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("System components initialized successfully!");
+  #endif
 }
 
 void initializeSensors() {
-  Serial.println("Initializing sensors...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing sensors...");
+  #endif
   
   // Initialize DHT sensor (if enabled)
   #if DHT_ENABLED
@@ -405,26 +433,38 @@ void initializeSensors() {
     float testHumidity = dht.readHumidity();
     
     if (isnan(testTemp) || isnan(testHumidity)) {
-      Serial.println("Warning: DHT sensor initialization failed!");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("Warning: DHT sensor initialization failed!");
+      #endif
       systemState.systemOK = false;
     } else {
-      Serial.println("DHT sensor initialized successfully (" + String(DHT_SENSOR_TYPE == DHT11 ? "DHT11" : "DHT22") + ")");
-      Serial.println("Test reading - Temperature: " + String(testTemp) + "°C, Humidity: " + String(testHumidity) + "%");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("DHT sensor initialized successfully (" + String(DHT_SENSOR_TYPE == DHT11 ? "DHT11" : "DHT22") + ")");
+        Serial.println("Test reading - Temperature: " + String(testTemp) + "°C, Humidity: " + String(testHumidity) + "%");
+      #endif
     }
   #else
-    Serial.println("DHT sensor disabled - using default values");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("DHT sensor disabled - using default values");
+    #endif
   #endif
   
   // Initialize soil moisture sensor (analog)
   pinMode(SOIL_MOISTURE_PIN, INPUT);
-  Serial.println("Soil moisture sensor initialized");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Soil moisture sensor initialized");
+  #endif
   
-  Serial.println("Sensor initialization complete!");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Sensor initialization complete!");
+  #endif
 }
 
 void initializeDisplay() {
   #if DISPLAY_ENABLED
-    Serial.println("Initializing LCD display...");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Initializing LCD display...");
+    #endif
     
     // Initialize LCD
     lcd.init();
@@ -449,14 +489,20 @@ void initializeDisplay() {
     // Clear display
     lcd.clear();
     
-    Serial.println("LCD display initialized successfully!");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("LCD display initialized successfully!");
+    #endif
   #else
-    Serial.println("No display configured - using serial output only");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("No display configured - using serial output only");
+    #endif
   #endif
 }
 
 void initializeActuators() {
-  Serial.println("Initializing actuators...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing actuators...");
+  #endif
   
   // Initialize relay pin
   pinMode(RELAY_PIN, OUTPUT);
@@ -472,11 +518,15 @@ void initializeActuators() {
   digitalWrite(LED_RED_PIN, LOW);
   digitalWrite(LED_BLUE_PIN, LOW);
   
-  Serial.println("Actuators initialized successfully!");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Actuators initialized successfully!");
+  #endif
 }
 
 void initializeWiFi() {
-  Serial.println("Initializing WiFi connection...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing WiFi connection...");
+  #endif
   
   // Set WiFi mode
   WiFi.mode(WIFI_STA);
@@ -488,31 +538,42 @@ void initializeWiFi() {
   int attempts = 0;
   while (WiFi.status() != WL_CONNECTED && attempts < 20) {
     delay(500);
-    Serial.print(".");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.print(".");
+    #endif
     attempts++;
   }
   
   if (WiFi.status() == WL_CONNECTED) {
     systemState.wifiConnected = true;
-    Serial.println();
-    Serial.println("WiFi connected successfully!");
-    Serial.println("IP address: " + WiFi.localIP().toString());
-    Serial.println("Signal strength: " + String(WiFi.RSSI()) + " dBm");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println();
+      Serial.println("WiFi connected successfully!");
+      Serial.println("IP address: " + WiFi.localIP().toString());
+      Serial.println("Signal strength: " + String(WiFi.RSSI()) + " dBm");
+    #endif
   } else {
     systemState.wifiConnected = false;
-    Serial.println();
-    Serial.println("WiFi connection failed!");
-    Serial.println("System will operate in offline mode");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println();
+      Serial.println("WiFi connection failed!");
+      Serial.println("System will operate in offline mode");
+    #endif
   }
 }
 
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 void initializeAdafruitIO() {
   if (!ADAFRUIT_IO_ENABLED) {
-    Serial.println("Adafruit IO disabled in configuration");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Adafruit IO disabled in configuration");
+    #endif
     return;
   }
   
-  Serial.println("Initializing Adafruit IO connection...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing Adafruit IO connection...");
+  #endif
   
   // Initialize Adafruit IO feeds
   temperatureFeed = io.feed(ADAFRUIT_IO_TEMPERATURE_FEED);
@@ -523,29 +584,40 @@ void initializeAdafruitIO() {
   irrigationCountFeed = io.feed(ADAFRUIT_IO_IRRIGATION_COUNT_FEED);
   
   // Connect to Adafruit IO
-  Serial.println("Connecting to Adafruit IO...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Connecting to Adafruit IO...");
+  #endif
   io.connect();
   
   // Wait for connection
   int attempts = 0;
   while (io.status() < AIO_CONNECTED && attempts < 20) {
     delay(500);
-    Serial.print(".");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.print(".");
+    #endif
     attempts++;
   }
   
   if (io.status() == AIO_CONNECTED) {
-    Serial.println();
-    Serial.println("Adafruit IO connected successfully!");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println();
+      Serial.println("Adafruit IO connected successfully!");
+    #endif
   } else {
-    Serial.println();
-    Serial.println("Adafruit IO connection failed!");
-    Serial.println("Status: " + String(io.statusText()));
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println();
+      Serial.println("Adafruit IO connection failed!");
+      Serial.println("Status: " + String(io.statusText()));
+    #endif
   }
 }
+#endif
 
 void initializeOTA() {
-  Serial.println("Initializing OTA updates...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing OTA updates...");
+  #endif
   
   // Configure OTA
   ArduinoOTA.setHostname(OTA_HOSTNAME);
@@ -553,7 +625,9 @@ void initializeOTA() {
   
   ArduinoOTA.onStart([]() {
     String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
-    Serial.println("Start updating " + type);
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Start updating " + type);
+    #endif
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("OTA Update");
@@ -562,7 +636,9 @@ void initializeOTA() {
   });
   
   ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("\nEnd");
+    #endif
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("OTA Update");
@@ -571,26 +647,34 @@ void initializeOTA() {
   });
   
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    #endif
   });
   
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    #endif
   });
   
   ArduinoOTA.begin();
   otaEnabled = true;
   
-  Serial.println("OTA updates initialized successfully!");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("OTA updates initialized successfully!");
+  #endif
 }
 
 void initializeWebServer() {
-  Serial.println("Initializing web server...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Initializing web server...");
+  #endif
   
   // Configure web server routes
   server.on("/", handleRoot);
@@ -602,8 +686,10 @@ void initializeWebServer() {
   // Start web server
   server.begin();
   
-  Serial.println("Web server initialized successfully!");
-  Serial.println("Web interface available at: http://" + WiFi.localIP().toString());
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Web server initialized successfully!");
+    Serial.println("Web interface available at: http://" + WiFi.localIP().toString());
+  #endif
 }
 
 // =============================================================================
@@ -621,7 +707,9 @@ void readSensors() {
 
     // Check for DHT sensor errors
     if (isnan(temperature) || isnan(humidity)) {
-      Serial.println("Error: Failed to read DHT sensor!");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("Error: Failed to read DHT sensor!");
+      #endif
       systemState.sensorErrors++;
       sensorValidation.disconnectCount++;
       return;
@@ -672,15 +760,19 @@ void readSensors() {
     sensorValidation.disconnectCount = 0;
   } else {
     systemState.sensorErrors++;
-    Serial.println("Warning: Invalid sensor readings detected!");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Warning: Invalid sensor readings detected!");
+    #endif
   }
   
   // Debug output
   if (DEBUG_MODE) {
-    Serial.println("Sensor Readings:");
-    Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
-    Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
-    Serial.println("  Soil Moisture: " + String(soilMoisturePercent) + "% (Valid: " + String(sensorValidation.soilMoistureValid ? "Yes" : "No") + ")");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Sensor Readings:");
+      Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
+      Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
+      Serial.println("  Soil Moisture: " + String(soilMoisturePercent) + "% (Valid: " + String(sensorValidation.soilMoistureValid ? "Yes" : "No") + ")");
+    #endif
   }
 }
 
@@ -836,7 +928,9 @@ void controlIrrigation() {
 }
 
 void startIrrigation() {
-  Serial.println("Starting irrigation...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Starting irrigation...");
+  #endif
   
   // Activate relay (pump)
   digitalWrite(RELAY_PIN, HIGH);
@@ -856,12 +950,16 @@ void startIrrigation() {
     lcd.print("ACTIVE");
   #endif
   
-  Serial.println("Irrigation started. Duration: " + String(IRRIGATION_DURATION / 1000) + " seconds");
-  Serial.println("Maximum runtime: " + String(MAX_PUMP_RUNTIME / 1000) + " seconds");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Irrigation started. Duration: " + String(IRRIGATION_DURATION / 1000) + " seconds");
+    Serial.println("Maximum runtime: " + String(MAX_PUMP_RUNTIME / 1000) + " seconds");
+  #endif
 }
 
 void stopIrrigation() {
-  Serial.println("Stopping irrigation...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Stopping irrigation...");
+  #endif
   
   // Deactivate relay (pump)
   digitalWrite(RELAY_PIN, LOW);
@@ -872,7 +970,9 @@ void stopIrrigation() {
     lcd.clear();
   #endif
   
-  Serial.println("Irrigation stopped.");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Irrigation stopped.");
+  #endif
 }
 
 // =============================================================================
@@ -882,7 +982,9 @@ void stopIrrigation() {
 void checkWiFiConnection() {
   if (WiFi.status() != WL_CONNECTED) {
     if (systemState.wifiConnected) {
-      Serial.println("WiFi connection lost! Attempting to reconnect...");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("WiFi connection lost! Attempting to reconnect...");
+      #endif
       systemState.wifiConnected = false;
     }
     
@@ -897,15 +999,19 @@ void checkWiFiConnection() {
       if (WiFi.status() == WL_CONNECTED) {
         systemState.wifiConnected = true;
         wifiReconnectAttempts = 0;
-        Serial.println("WiFi reconnected successfully!");
-        Serial.println("IP address: " + WiFi.localIP().toString());
+        #if SERIAL_OUTPUT_ENABLED
+          Serial.println("WiFi reconnected successfully!");
+          Serial.println("IP address: " + WiFi.localIP().toString());
+        #endif
       }
     }
   } else {
     if (!systemState.wifiConnected) {
       systemState.wifiConnected = true;
       wifiReconnectAttempts = 0;
-      Serial.println("WiFi connection restored!");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("WiFi connection restored!");
+      #endif
     }
   }
 }
@@ -916,7 +1022,9 @@ void transmitDataToCloud() {
     return;
   }
   
-  Serial.println("Transmitting data to cloud...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Transmitting data to cloud...");
+  #endif
   
   HTTPClient http;
   String url = "https://api.thingspeak.com/update";
@@ -936,14 +1044,18 @@ void transmitDataToCloud() {
   
   if (httpResponseCode > 0) {
     String response = http.getString();
-    Serial.println("Data transmitted successfully!");
-    Serial.println("Response code: " + String(httpResponseCode));
-    Serial.println("Response: " + response);
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Data transmitted successfully!");
+      Serial.println("Response code: " + String(httpResponseCode));
+      Serial.println("Response: " + response);
+    #endif
     systemState.lastTransmissionStatus = "Success";
     systemState.transmissionErrors = 0;
   } else {
-    Serial.println("Error transmitting data!");
-    Serial.println("Response code: " + String(httpResponseCode));
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Error transmitting data!");
+      Serial.println("Response code: " + String(httpResponseCode));
+    #endif
     systemState.lastTransmissionStatus = "Failed: " + String(httpResponseCode);
     systemState.transmissionErrors++;
   }
@@ -951,6 +1063,7 @@ void transmitDataToCloud() {
   http.end();
 }
 
+#if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
 void transmitDataToAdafruitIO() {
   if (!ADAFRUIT_IO_ENABLED) {
     systemState.lastAdafruitIOStatus = "Disabled";
@@ -962,7 +1075,9 @@ void transmitDataToAdafruitIO() {
     return;
   }
   
-  Serial.println("Transmitting data to Adafruit IO...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Transmitting data to Adafruit IO...");
+  #endif
   
   try {
     // Send temperature data
@@ -983,17 +1098,22 @@ void transmitDataToAdafruitIO() {
     // Send irrigation count
     irrigationCountFeed->save(systemState.dailyIrrigations);
     
-    Serial.println("Data transmitted to Adafruit IO successfully!");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Data transmitted to Adafruit IO successfully!");
+    #endif
     systemState.lastAdafruitIOStatus = "Success";
     systemState.adafruitIOErrors = 0;
     
   } catch (const std::exception& e) {
-    Serial.println("Error transmitting data to Adafruit IO!");
-    Serial.println("Error: " + String(e.what()));
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Error transmitting data to Adafruit IO!");
+      Serial.println("Error: " + String(e.what()));
+    #endif
     systemState.lastAdafruitIOStatus = "Failed: " + String(e.what());
     systemState.adafruitIOErrors++;
   }
 }
+#endif
 
 // =============================================================================
 // WEB SERVER HANDLERS
@@ -1030,8 +1150,17 @@ void handleRoot() {
   // Cloud Services Status
   html += "<div class='card'>";
   html += "<h2>Cloud Services Status</h2>";
+  #if IOT_SERVICES_ENABLED
   html += "<p>ThingSpeak: <span class='status " + String(THINGSPEAK_ENABLED ? (systemState.lastTransmissionStatus == "Success" ? "ok" : "warning") : "warning") + "'>" + String(THINGSPEAK_ENABLED ? systemState.lastTransmissionStatus : "DISABLED") + "</span></p>";
+  #else
+  html += "<p>ThingSpeak: <span class='status warning'>DISABLED</span></p>";
+  #endif
+  
+  #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
   html += "<p>Adafruit IO: <span class='status " + String(ADAFRUIT_IO_ENABLED ? (systemState.lastAdafruitIOStatus == "Success" ? "ok" : "warning") : "warning") + "'>" + String(ADAFRUIT_IO_ENABLED ? systemState.lastAdafruitIOStatus : "DISABLED") + "</span></p>";
+  #else
+  html += "<p>Adafruit IO: <span class='status warning'>DISABLED</span></p>";
+  #endif
   html += "</div>";
   
   // Control Panel
@@ -1127,20 +1256,26 @@ void checkSystemStatus() {
   // Check sensor errors
   if (systemState.sensorErrors >= MAX_SENSOR_ERRORS) {
     systemState.systemOK = false;
-    Serial.println("Warning: Too many sensor errors detected!");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Warning: Too many sensor errors detected!");
+    #endif
   } else if (systemState.sensorErrors == 0) {
     systemState.systemOK = true;
   }
   
   // Check memory usage
   if (currentTime % MEMORY_CHECK_INTERVAL < STATUS_CHECK_INTERVAL) {
-    Serial.println("Free heap: " + String(ESP.getFreeHeap()) + " bytes");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Free heap: " + String(ESP.getFreeHeap()) + " bytes");
+    #endif
   }
 }
 
 void handleErrors() {
   if (!systemState.systemOK) {
-    Serial.println("System error detected! Check sensors and connections.");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("System error detected! Check sensors and connections.");
+    #endif
     
     // Turn off pump for safety
     if (systemState.pumpActive) {
@@ -1157,16 +1292,27 @@ void handleErrors() {
 }
 
 void performHeartbeat() {
-  Serial.println("System heartbeat - All systems operational");
-  Serial.println("  Temperature: " + String(systemState.temperature, 1) + "°C");
-  Serial.println("  Humidity: " + String(systemState.humidity, 1) + "%");
-  Serial.println("  Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
-  Serial.println("  Pump Status: " + String(systemState.pumpActive ? "ON" : "OFF"));
-  Serial.println("  Daily Irrigations: " + String(systemState.dailyIrrigations));
-  Serial.println("  System Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
-  Serial.println("  WiFi Status: " + String(systemState.wifiConnected ? "CONNECTED" : "DISCONNECTED"));
-  Serial.println("  ThingSpeak Status: " + systemState.lastTransmissionStatus);
-  Serial.println("  Adafruit IO Status: " + systemState.lastAdafruitIOStatus);
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("System heartbeat - All systems operational");
+    Serial.println("  Temperature: " + String(systemState.temperature, 1) + "°C");
+    Serial.println("  Humidity: " + String(systemState.humidity, 1) + "%");
+    Serial.println("  Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
+    Serial.println("  Pump Status: " + String(systemState.pumpActive ? "ON" : "OFF"));
+    Serial.println("  Daily Irrigations: " + String(systemState.dailyIrrigations));
+    Serial.println("  System Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
+    Serial.println("  WiFi Status: " + String(systemState.wifiConnected ? "CONNECTED" : "DISCONNECTED"));
+    #if IOT_SERVICES_ENABLED
+    Serial.println("  ThingSpeak Status: " + systemState.lastTransmissionStatus);
+    #else
+    Serial.println("  ThingSpeak Status: DISABLED");
+    #endif
+    
+    #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
+    Serial.println("  Adafruit IO Status: " + systemState.lastAdafruitIOStatus);
+    #else
+    Serial.println("  Adafruit IO Status: DISABLED");
+    #endif
+  #endif
 }
 
 // =============================================================================
@@ -1191,21 +1337,32 @@ void logSystemData() {
     }
     
     // Serial output
-    Serial.println("=== SYSTEM DATA LOG ===");
-    Serial.println("Timestamp: " + String(currentTime));
-    Serial.println("Temperature: " + String(systemState.temperature, 2) + "°C");
-    Serial.println("Humidity: " + String(systemState.humidity, 2) + "%");
-    Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
-    Serial.println("Soil Moisture Raw: " + String(systemState.soilMoistureRaw));
-    Serial.println("Pump Active: " + String(systemState.pumpActive ? "Yes" : "No"));
-    Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
-    Serial.println("System OK: " + String(systemState.systemOK ? "Yes" : "No"));
-    Serial.println("WiFi Connected: " + String(systemState.wifiConnected ? "Yes" : "No"));
-    Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
-    Serial.println("ThingSpeak Errors: " + String(systemState.transmissionErrors));
-    Serial.println("Adafruit IO Errors: " + String(systemState.adafruitIOErrors));
-    Serial.println("Free Heap: " + String(ESP.getFreeHeap()) + " bytes");
-    Serial.println("========================");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("=== SYSTEM DATA LOG ===");
+      Serial.println("Timestamp: " + String(currentTime));
+      Serial.println("Temperature: " + String(systemState.temperature, 2) + "°C");
+      Serial.println("Humidity: " + String(systemState.humidity, 2) + "%");
+      Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
+      Serial.println("Soil Moisture Raw: " + String(systemState.soilMoistureRaw));
+      Serial.println("Pump Active: " + String(systemState.pumpActive ? "Yes" : "No"));
+      Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
+      Serial.println("System OK: " + String(systemState.systemOK ? "Yes" : "No"));
+      Serial.println("WiFi Connected: " + String(systemState.wifiConnected ? "Yes" : "No"));
+      Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
+      #if IOT_SERVICES_ENABLED
+      Serial.println("ThingSpeak Errors: " + String(systemState.transmissionErrors));
+      #else
+      Serial.println("ThingSpeak Errors: DISABLED");
+      #endif
+      
+      #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
+      Serial.println("Adafruit IO Errors: " + String(systemState.adafruitIOErrors));
+      #else
+      Serial.println("Adafruit IO Errors: DISABLED");
+      #endif
+      Serial.println("Free Heap: " + String(ESP.getFreeHeap()) + " bytes");
+      Serial.println("========================");
+    #endif
     
     lastLogTime = currentTime;
   }
@@ -1238,11 +1395,23 @@ String getSystemStatusJSON() {
   doc["wifiConnected"] = systemState.wifiConnected;
   doc["sensorErrors"] = systemState.sensorErrors;
   doc["transmissionErrors"] = systemState.transmissionErrors;
+  #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
   doc["adafruitIOErrors"] = systemState.adafruitIOErrors;
-  doc["lastTransmissionStatus"] = systemState.lastTransmissionStatus;
   doc["lastAdafruitIOStatus"] = systemState.lastAdafruitIOStatus;
-  doc["thingSpeakEnabled"] = THINGSPEAK_ENABLED;
   doc["adafruitIOEnabled"] = ADAFRUIT_IO_ENABLED;
+  #else
+  doc["adafruitIOErrors"] = 0;
+  doc["lastAdafruitIOStatus"] = "DISABLED";
+  doc["adafruitIOEnabled"] = false;
+  #endif
+  
+  #if IOT_SERVICES_ENABLED
+  doc["lastTransmissionStatus"] = systemState.lastTransmissionStatus;
+  doc["thingSpeakEnabled"] = THINGSPEAK_ENABLED;
+  #else
+  doc["lastTransmissionStatus"] = "DISABLED";
+  doc["thingSpeakEnabled"] = false;
+  #endif
   doc["freeHeap"] = ESP.getFreeHeap();
   doc["uptime"] = millis();
   
@@ -1264,7 +1433,9 @@ void initializeWatchdog() {
     };
     esp_task_wdt_init(&wdt_config);
     esp_task_wdt_add(NULL);
-    Serial.println("Watchdog timer initialized (" + String(WATCHDOG_TIMEOUT) + " seconds)");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Watchdog timer initialized (" + String(WATCHDOG_TIMEOUT) + " seconds)");
+    #endif
   }
 }
 
@@ -1276,7 +1447,9 @@ void feedWatchdog() {
 }
 
 void emergencyStop() {
-  Serial.println("EMERGENCY STOP ACTIVATED!");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("EMERGENCY STOP ACTIVATED!");
+  #endif
   
   // Stop irrigation immediately
   if (systemState.pumpActive) {
@@ -1301,7 +1474,9 @@ void emergencyStop() {
   digitalWrite(LED_BLUE_PIN, LOW);
   digitalWrite(LED_RED_PIN, HIGH);
   
-  Serial.println("System halted due to emergency stop!");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("System halted due to emergency stop!");
+  #endif
 }
 
 void validateSensorReadings(float temperature, float humidity, int soilMoisture, int lightLevel) {
@@ -1321,7 +1496,9 @@ void validateSensorReadings(float temperature, float humidity, int soilMoisture,
   if (SOIL_MOISTURE_VALIDATION && sensorValidation.soilMoistureValid) {
     int change = abs(soilMoisture - sensorValidation.lastSoilMoisture);
     if (change > MAX_SOIL_MOISTURE_CHANGE) {
-      Serial.println("Warning: Sudden soil moisture change detected: " + String(change) + "%");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("Warning: Sudden soil moisture change detected: " + String(change) + "%");
+      #endif
       sensorValidation.soilMoistureValid = false;
     }
   }
@@ -1330,7 +1507,9 @@ void validateSensorReadings(float temperature, float humidity, int soilMoisture,
   if (LIGHT_VALIDATION && sensorValidation.lightLevelValid) {
     int change = abs(lightLevel - sensorValidation.lastLightLevel);
     if (change > MAX_LIGHT_CHANGE) {
-      Serial.println("Warning: Sudden light level change detected: " + String(change) + "%");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("Warning: Sudden light level change detected: " + String(change) + "%");
+      #endif
       sensorValidation.lightLevelValid = false;
     }
   }
@@ -1376,7 +1555,9 @@ bool checkSensorConsistency(int readings[], int newReading) {
 }
 
 void attemptSystemRecovery() {
-  Serial.println("Attempting system recovery...");
+  #if SERIAL_OUTPUT_ENABLED
+    Serial.println("Attempting system recovery...");
+  #endif
   
   systemState.recoveryAttempts++;
   
@@ -1401,16 +1582,22 @@ void attemptSystemRecovery() {
   if (!isnan(testTemp) && !isnan(testHumidity)) {
     systemState.systemOK = true;
     systemState.recoveryAttempts = 0;
-    Serial.println("System recovery successful!");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("System recovery successful!");
+    #endif
   } else {
-    Serial.println("System recovery failed. Attempt " + String(systemState.recoveryAttempts) + "/" + String(RECOVERY_ATTEMPTS));
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("System recovery failed. Attempt " + String(systemState.recoveryAttempts) + "/" + String(RECOVERY_ATTEMPTS));
+    #endif
     delay(RECOVERY_DELAY);
   }
 }
 
 void checkPumpRuntime() {
   if (systemState.pumpActive && (currentTime - systemState.pumpStartTime >= MAX_PUMP_RUNTIME)) {
-    Serial.println("Warning: Maximum pump runtime exceeded! Stopping irrigation for safety.");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Warning: Maximum pump runtime exceeded! Stopping irrigation for safety.");
+    #endif
     stopIrrigation();
     
     // Display warning on LCD
@@ -1464,8 +1651,17 @@ void outputToSerial() {
       Serial.println("System Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
       Serial.println("WiFi Status: " + String(systemState.wifiConnected ? "CONNECTED" : "DISCONNECTED"));
       Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
+      #if IOT_SERVICES_ENABLED
       Serial.println("ThingSpeak Status: " + systemState.lastTransmissionStatus);
+      #else
+      Serial.println("ThingSpeak Status: DISABLED");
+      #endif
+      
+      #if IOT_SERVICES_ENABLED && ADAFRUIT_IO_ENABLED
       Serial.println("Adafruit IO Status: " + systemState.lastAdafruitIOStatus);
+      #else
+      Serial.println("Adafruit IO Status: DISABLED");
+      #endif
       Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
       Serial.println("Uptime: " + String(currentTime / 1000) + " seconds");
       Serial.println("=====================================");
@@ -1481,7 +1677,9 @@ void outputToSerial() {
 
 void initializeControl() {
   #if CONTROL_TYPE == CONTROL_ROTARY_ENCODER
-    Serial.println("Initializing rotary encoder control...");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Initializing rotary encoder control...");
+    #endif
     
     // Set encoder pins as inputs with pullup
     pinMode(ENCODER_CLK_PIN, INPUT_PULLUP);
@@ -1496,20 +1694,28 @@ void initializeControl() {
     systemState.lastMenuActivity = currentTime;
     systemState.inMenuMode = false;
     
-    Serial.println("Rotary encoder control initialized");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Rotary encoder control initialized");
+    #endif
     
   #elif CONTROL_TYPE == CONTROL_POTENTIOMETER
-    Serial.println("Initializing potentiometer control...");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Initializing potentiometer control...");
+    #endif
     
     // Initialize potentiometer state
     systemState.potentiometerValue = 0;
     systemState.adjustedThreshold = SOIL_MOISTURE_THRESHOLD;
     systemState.lastPotentiometerRead = currentTime;
     
-    Serial.println("Potentiometer control initialized");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Potentiometer control initialized");
+    #endif
     
   #else
-    Serial.println("No manual control configured - fully automated mode");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("No manual control configured - fully automated mode");
+    #endif
   #endif
   
   // Load saved settings
@@ -1538,18 +1744,24 @@ void handleRotaryEncoder() {
         // Enter menu mode
         systemState.inMenuMode = true;
         systemState.currentMenu = 0;
-        Serial.println("Entered menu mode");
+        #if SERIAL_OUTPUT_ENABLED
+          Serial.println("Entered menu mode");
+        #endif
       } else {
         // Process menu selection
         if (systemState.currentMenu < MENU_ITEMS) {
           // Enter parameter adjustment mode
           systemState.currentParameter = systemState.currentMenu;
-          Serial.println("Entered parameter adjustment mode: " + String(systemState.currentParameter));
+          #if SERIAL_OUTPUT_ENABLED
+            Serial.println("Entered parameter adjustment mode: " + String(systemState.currentParameter));
+          #endif
         } else {
           // Exit menu mode
           systemState.inMenuMode = false;
           saveSettings();
-          Serial.println("Exited menu mode");
+          #if SERIAL_OUTPUT_ENABLED
+            Serial.println("Exited menu mode");
+          #endif
         }
       }
     } else if (!buttonState && systemState.encoderButtonPressed) {
@@ -1598,7 +1810,9 @@ void handleRotaryEncoder() {
       systemState.inMenuMode = false;
       systemState.currentParameter = -1;
       saveSettings();
-      Serial.println("Menu timeout - returned to normal mode");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("Menu timeout - returned to normal mode");
+      #endif
     }
     
     // Update display for menu
@@ -1633,7 +1847,9 @@ void handlePotentiometer() {
         lcd.print("Pot: " + String(systemState.potentiometerValue));
       #endif
       
-      Serial.println("Potentiometer threshold: " + String(systemState.adjustedThreshold) + "%");
+      #if SERIAL_OUTPUT_ENABLED
+        Serial.println("Potentiometer threshold: " + String(systemState.adjustedThreshold) + "%");
+      #endif
     }
   #endif
 }
@@ -1723,8 +1939,10 @@ void saveSettings() {
   #if CONTROL_TYPE == CONTROL_ROTARY_ENCODER || CONTROL_TYPE == CONTROL_POTENTIOMETER
     // In a real implementation, this would save to EEPROM
     // For now, we'll just log the settings
-    Serial.println("Settings saved:");
-    Serial.println("  Soil Threshold: " + String(systemState.adjustedThreshold) + "%");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Settings saved:");
+      Serial.println("  Soil Threshold: " + String(systemState.adjustedThreshold) + "%");
+    #endif
   #endif
 }
 
@@ -1733,6 +1951,8 @@ void loadSettings() {
     // In a real implementation, this would load from EEPROM
     // For now, we'll use default values
     systemState.adjustedThreshold = SOIL_MOISTURE_THRESHOLD;
-    Serial.println("Settings loaded with defaults");
+    #if SERIAL_OUTPUT_ENABLED
+      Serial.println("Settings loaded with defaults");
+    #endif
   #endif
 }

@@ -55,6 +55,9 @@ Edit the appropriate `config.h` file to match your hardware:
 - **Online Version**: Edit `online/config.h`
 
 ```cpp
+// Serial Communication Settings
+#define SERIAL_OUTPUT_ENABLED true      // Enable/disable serial monitor output (true by default)
+
 // Display Configuration
 #define DISPLAY_TYPE DISPLAY_LCD_1602     // or DISPLAY_LCD_2004, DISPLAY_NONE
 
@@ -118,6 +121,7 @@ Edit the appropriate `config.h` file to match your hardware:
 - **Safety Mechanisms**: Watchdog timer, emergency stop, pump protection
 - **Modular Design**: Flexible hardware configurations
 - **Fail-safe Operation**: Automatic recovery and error handling
+- **Configurable Serial Output**: Optional serial monitor output for debugging and monitoring
 
 ### Online Features (Online Version Only)
 - **WiFi Connectivity**: Automatic connection and reconnection
@@ -136,6 +140,11 @@ Edit the appropriate `config.h` file to match your hardware:
 - **Potentiometer**: Real-time threshold adjustment
 - **Automated**: Fully automated operation
 
+### Serial Output Options
+- **Enabled (Default)**: Full serial output for debugging and monitoring
+- **Disabled**: No serial output for production deployments
+- **Performance**: Disabling serial output improves performance and reduces memory usage
+
 ## Usage
 
 ### Offline Mode
@@ -143,6 +152,29 @@ Edit the appropriate `config.h` file to match your hardware:
 2. **Monitor**: Check serial output or LCD display
 3. **Status LEDs**: Green (OK), Red (Pump), Blue (Not used)
 4. **Automatic Operation**: System waters when soil moisture < threshold
+
+### Serial Output Configuration
+To enable or disable serial output, modify the configuration in `config.h`:
+
+```cpp
+// Enable serial output (default)
+#define SERIAL_OUTPUT_ENABLED true
+
+// Disable serial output for production
+#define SERIAL_OUTPUT_ENABLED false
+```
+
+**When Enabled:**
+- Full debug output and status messages
+- Sensor readings and validation results
+- Error messages and warnings
+- System heartbeat and data logging
+
+**When Disabled:**
+- No serial output (improves performance)
+- Reduced memory usage
+- Suitable for production deployments
+- System still functions normally
 
 ### Online Mode
 1. **WiFi Setup**: Configure WiFi credentials in `config.h`
@@ -197,9 +229,11 @@ Enable debug mode in `config.h` for detailed output:
 - Use headless mode for lower power consumption
 - Increase sensor reading intervals
 - Enable WiFi power save mode
+- Disable serial output for production deployments
 
 ### Memory Optimization
 - Disable unused features
+- Disable serial output (`SERIAL_OUTPUT_ENABLED false`)
 - Reduce debug output
 - Use latest library versions
 

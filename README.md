@@ -9,8 +9,10 @@ A comprehensive IoT-based smart farming solution that automates irrigation based
 - [Hardware Requirements](#hardware-requirements)
 - [Installation Guide](#installation-guide)
 - [Configuration Guide](#configuration-guide)
+- [Serial Output Configuration](#serial-output-configuration)
 - [Display Options](#display-options)
 - [Cloud Services Setup](#cloud-services-setup)
+- [IoT Services Configuration](#iot-services-configuration)
 - [Usage Guide](#usage-guide)
 - [Advanced Features](#advanced-features)
 - [Troubleshooting](#troubleshooting)
@@ -84,6 +86,8 @@ This smart farming system is designed to automate irrigation processes while pro
 - **OTA Updates**: Over-the-air firmware updates
 - **JSON API**: RESTful API for system integration
 - **Configurable Cloud Services**: Enable/disable individual services
+- **IoT Services Control**: Master switch for all IoT services
+- **Web UI Only Mode**: Option to use only built-in web interface
 
 ### Safety & Reliability Features
 
@@ -295,6 +299,9 @@ ESP32                    Components
 #define SENSOR_READ_INTERVAL 2000         // Sensor reading interval (ms)
 #define IRRIGATION_DURATION 10000         // Irrigation duration (ms)
 #define MIN_IRRIGATION_INTERVAL 300000    // Minimum time between irrigations (ms)
+
+// Serial Output Configuration
+#define SERIAL_OUTPUT_ENABLED true        // Enable/disable serial monitor output (true by default)
 ```
 
 #### Sensor Configuration
@@ -388,6 +395,61 @@ ESP32                    Components
 #define SENSOR_DISCONNECT_THRESHOLD 10    // Readings before marking disconnected
 #define DISCONNECT_DETECTION true         // Enable disconnection detection
 ```
+
+## Serial Output Configuration
+
+The system provides configurable serial output for debugging, monitoring, and production deployments.
+
+### Configuration
+
+```cpp
+// Serial Output Settings
+#define SERIAL_OUTPUT_ENABLED true        // Enable/disable serial monitor output (true by default)
+#define SERIAL_BAUD_RATE 115200           // Serial communication speed
+```
+
+### When Enabled (Default)
+
+- **System Status**: Comprehensive status messages every second
+- **Sensor Readings**: Real-time temperature, humidity, and soil moisture data
+- **Error Messages**: Detailed error reporting and warnings
+- **Debug Information**: Sensor validation, system recovery, and performance metrics
+- **Data Logging**: Periodic system data logs with timestamps
+- **Control Feedback**: Rotary encoder and potentiometer status updates
+
+### When Disabled
+
+- **Performance**: Improved system performance and reduced CPU usage
+- **Memory**: Reduced memory consumption (no string literals compiled)
+- **Production Ready**: Suitable for production deployments
+- **Silent Operation**: System operates without any serial output
+- **Full Functionality**: All features work normally, just without serial feedback
+
+### Use Cases
+
+**Development & Testing:**
+```cpp
+#define SERIAL_OUTPUT_ENABLED true        // Full debugging output
+#define DEBUG_MODE true                   // Additional debug information
+```
+
+**Production Deployment:**
+```cpp
+#define SERIAL_OUTPUT_ENABLED false       // No serial output
+#define DEBUG_MODE false                  // Minimal debug information
+```
+
+**Remote Monitoring:**
+```cpp
+#define SERIAL_OUTPUT_ENABLED true        // Essential for remote monitoring
+#define DEBUG_MODE false                  // Reduce output volume
+```
+
+### Performance Impact
+
+- **Enabled**: ~2-5% CPU overhead, ~1-2KB additional memory usage
+- **Disabled**: No serial overhead, optimal performance
+- **Conditional Compilation**: When disabled, no serial code is compiled into the binary
 
 ## Display Options
 
@@ -612,6 +674,158 @@ Create the following feeds:
 ```cpp
 #define THINGSPEAK_ENABLED false
 #define ADAFRUIT_IO_ENABLED false
+```
+
+## IoT Services Configuration
+
+The online version provides flexible IoT services configuration, allowing you to choose between full cloud integration or web UI-only operation.
+
+### Master IoT Services Control
+
+#### IOT_SERVICES_ENABLED
+Master switch for all IoT services (ThingSpeak, Adafruit IO).
+
+```cpp
+#define IOT_SERVICES_ENABLED true    // Enable all IoT services (default)
+#define IOT_SERVICES_ENABLED false   // Disable all IoT services
+```
+
+**When Enabled (Default):**
+- Full cloud service integration
+- Data transmission to ThingSpeak and Adafruit IO
+- Remote monitoring capabilities
+- Cloud dashboards and analytics
+
+**When Disabled:**
+- No cloud service calls
+- Reduced memory usage
+- Improved performance
+- Local operation only
+
+#### WEB_UI_ONLY_MODE
+Convenience setting to disable all IoT services and use only the built-in web interface.
+
+```cpp
+#define WEB_UI_ONLY_MODE false   // Normal mode with IoT services (default)
+#define WEB_UI_ONLY_MODE true    // Web UI only mode
+```
+
+**When Enabled:**
+- Automatically sets `IOT_SERVICES_ENABLED` to `false`
+- Disables all cloud service integrations
+- Uses only built-in web interface
+- Perfect for local-only operation
+
+### Individual Service Control
+
+#### ThingSpeak Configuration
+```cpp
+#define THINGSPEAK_ENABLED true     // Enable ThingSpeak (default)
+#define THINGSPEAK_ENABLED false    // Disable ThingSpeak
+```
+
+#### Adafruit IO Configuration
+```cpp
+#define ADAFRUIT_IO_ENABLED true    // Enable Adafruit IO (default)
+#define ADAFRUIT_IO_ENABLED false   // Disable Adafruit IO
+```
+
+### Configuration Examples
+
+#### Full IoT Mode (Default)
+```cpp
+// IoT Services Configuration
+#define IOT_SERVICES_ENABLED true
+#define WEB_UI_ONLY_MODE false
+#define THINGSPEAK_ENABLED true
+#define ADAFRUIT_IO_ENABLED true
+
+// WiFi Configuration
+#define WIFI_SSID "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+
+// ThingSpeak Configuration
+#define THINGSPEAK_API_KEY "YOUR_THINGSPEAK_API_KEY"
+#define THINGSPEAK_CHANNEL_ID "YOUR_CHANNEL_ID"
+
+// Adafruit IO Configuration
+#define ADAFRUIT_IO_USERNAME "YOUR_ADAFRUIT_IO_USERNAME"
+#define ADAFRUIT_IO_KEY "YOUR_ADAFRUIT_IO_KEY"
+```
+
+#### Web UI Only Mode
+```cpp
+// IoT Services Configuration
+#define IOT_SERVICES_ENABLED false
+#define WEB_UI_ONLY_MODE true
+#define THINGSPEAK_ENABLED false
+#define ADAFRUIT_IO_ENABLED false
+
+// WiFi Configuration (still needed for web interface)
+#define WIFI_SSID "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+```
+
+#### Selective IoT Services
+```cpp
+// IoT Services Configuration
+#define IOT_SERVICES_ENABLED true
+#define WEB_UI_ONLY_MODE false
+#define THINGSPEAK_ENABLED true
+#define ADAFRUIT_IO_ENABLED false
+
+// WiFi Configuration
+#define WIFI_SSID "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+
+// ThingSpeak Configuration
+#define THINGSPEAK_API_KEY "YOUR_THINGSPEAK_API_KEY"
+#define THINGSPEAK_CHANNEL_ID "YOUR_CHANNEL_ID"
+```
+
+### Performance Impact
+
+#### When IoT Services Enabled
+- **Memory Usage**: ~2-4KB additional for IoT libraries and objects
+- **CPU Overhead**: ~1-3% for cloud service calls
+- **Network Usage**: Regular data transmission to cloud services
+- **Power Consumption**: Slightly higher due to WiFi activity
+
+#### When IoT Services Disabled
+- **Memory Usage**: No IoT libraries loaded
+- **CPU Overhead**: No cloud service processing
+- **Network Usage**: Only web interface traffic
+- **Power Consumption**: Reduced WiFi activity
+
+### Use Cases
+
+#### Development & Testing
+```cpp
+#define IOT_SERVICES_ENABLED true    // Full debugging with cloud services
+#define WEB_UI_ONLY_MODE false
+#define SERIAL_OUTPUT_ENABLED true   // Essential for debugging
+```
+
+#### Production Deployment
+```cpp
+#define IOT_SERVICES_ENABLED false   // No cloud dependencies
+#define WEB_UI_ONLY_MODE true
+#define SERIAL_OUTPUT_ENABLED false  // Optimize for production
+```
+
+#### Remote Monitoring
+```cpp
+#define IOT_SERVICES_ENABLED true    // Essential for remote monitoring
+#define WEB_UI_ONLY_MODE false
+#define THINGSPEAK_ENABLED true      // Reliable data logging
+#define ADAFRUIT_IO_ENABLED false    // Reduce complexity
+```
+
+#### Local Operation
+```cpp
+#define IOT_SERVICES_ENABLED false   // Local operation only
+#define WEB_UI_ONLY_MODE true
+#define SERIAL_OUTPUT_ENABLED true   // Local monitoring via serial
 ```
 
 ## Usage Guide
@@ -1090,6 +1304,7 @@ esp_light_sleep_start();
 - **Sensors**: Optimize reading intervals
 - **WiFi**: Use power save mode when possible
 - **CPU**: Reduce clock speed for lower power consumption
+- **Serial Output**: Disable for production deployments (`SERIAL_OUTPUT_ENABLED false`)
 
 ### Memory Optimization
 
@@ -1108,6 +1323,7 @@ const char PROGMEM statusMessage[] = "System OK";
 - **Libraries**: Use only required libraries
 - **Features**: Disable unused features
 - **Debug**: Remove debug code in production
+- **Serial Output**: Disable serial output (`SERIAL_OUTPUT_ENABLED false`) to reduce flash usage
 - **Optimization**: Use compiler optimization flags
 
 ### Network Optimization

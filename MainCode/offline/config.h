@@ -173,7 +173,9 @@
 // Display Settings
 #define DISPLAY_UPDATE_INTERVAL 1000    // Display update interval (ms)
 #define DISPLAY_SCROLL_DELAY 2000       // Delay between display screens (ms) - LCD 1602 only
-#define SERIAL_OUTPUT_ENABLED true      // Enable serial output (always recommended)
+
+// Serial Communication Settings
+#define SERIAL_OUTPUT_ENABLED true      // Enable/disable serial monitor output (true by default)
 
 // Menu System (for Rotary Encoder)
 #define MENU_ITEMS 5                    // Number of menu items

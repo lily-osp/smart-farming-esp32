@@ -173,7 +173,9 @@
 // Display Settings
 #define DISPLAY_UPDATE_INTERVAL 1000    // Display update interval (ms)
 #define DISPLAY_SCROLL_DELAY 2000       // Delay between display screens (ms) - LCD 1602 only
-#define SERIAL_OUTPUT_ENABLED true      // Enable serial output (always recommended)
+
+// Serial Communication Settings
+#define SERIAL_OUTPUT_ENABLED true      // Enable/disable serial monitor output (true by default)
 
 // Menu System (for Rotary Encoder)
 #define MENU_ITEMS 5                    // Number of menu items
@@ -259,6 +261,10 @@
 #define WIFI_TIMEOUT 10000              // WiFi connection timeout (ms)
 #define WIFI_RECONNECT_INTERVAL 30000   // WiFi reconnection interval (ms)
 
+// IoT Services Configuration
+#define IOT_SERVICES_ENABLED true          // Enable/disable all IoT services (ThingSpeak, Adafruit IO)
+#define WEB_UI_ONLY_MODE false            // Enable web UI only mode (disables all IoT services)
+
 // ThingSpeak Configuration
 #define THINGSPEAK_ENABLED true            // Enable/disable ThingSpeak
 #define THINGSPEAK_API_KEY "YOUR_THINGSPEAK_API_KEY"
@@ -270,6 +276,16 @@
 #define ADAFRUIT_IO_USERNAME "YOUR_ADAFRUIT_IO_USERNAME"
 #define ADAFRUIT_IO_KEY "YOUR_ADAFRUIT_IO_KEY"
 #define ADAFRUIT_IO_UPDATE_INTERVAL 60000  // Data upload interval (ms)
+
+// IoT Services Override (when WEB_UI_ONLY_MODE is true)
+#if WEB_UI_ONLY_MODE
+  #undef IOT_SERVICES_ENABLED
+  #undef THINGSPEAK_ENABLED
+  #undef ADAFRUIT_IO_ENABLED
+  #define IOT_SERVICES_ENABLED false
+  #define THINGSPEAK_ENABLED false
+  #define ADAFRUIT_IO_ENABLED false
+#endif
 
 // Adafruit IO Feed Names
 #define ADAFRUIT_IO_TEMPERATURE_FEED "temperature"

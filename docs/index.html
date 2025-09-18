@@ -373,7 +373,7 @@
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-                            <span data-en="Serial output for monitoring" data-id="Output serial untuk monitoring">Serial output for monitoring</span>
+                            <span data-en="Configurable serial output for monitoring" data-id="Output serial yang dapat dikonfigurasi untuk monitoring">Configurable serial output for monitoring</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
@@ -462,6 +462,789 @@
                         </ul>
                     </div>
                 </div>
+                
+                <!-- Serial Output Configuration -->
+                <div class="mt-12">
+                    <div class="bg-white p-8 rounded-lg shadow">
+                        <div class="flex items-center mb-6">
+                            <i class="fas fa-terminal text-primary text-3xl mr-4"></i>
+                            <h3 class="text-2xl font-semibold" data-en="Serial Output Configuration" data-id="Konfigurasi Output Serial">Serial Output Configuration</h3>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="text-lg font-semibold mb-4" data-en="Configuration" data-id="Konfigurasi">Configuration</h4>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <pre class="text-sm text-gray-700"><code>// Serial Output Settings
+#define SERIAL_OUTPUT_ENABLED true        // Enable/disable serial output
+#define SERIAL_BAUD_RATE 115200           // Serial communication speed</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold mb-4" data-en="Use Cases" data-id="Kasus Penggunaan">Use Cases</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-code text-green-500 mt-1 mr-3"></i>
+                                        <div>
+                                            <strong data-en="Development & Testing" data-id="Pengembangan & Pengujian">Development & Testing</strong>
+                                            <p class="text-sm text-gray-600" data-en="Full debugging output with detailed status messages" data-id="Output debugging lengkap dengan pesan status detail">Full debugging output with detailed status messages</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <i class="fas fa-rocket text-blue-500 mt-1 mr-3"></i>
+                                        <div>
+                                            <strong data-en="Production Deployment" data-id="Deployment Produksi">Production Deployment</strong>
+                                            <p class="text-sm text-gray-600" data-en="No serial output for optimal performance" data-id="Tidak ada output serial untuk performa optimal">No serial output for optimal performance</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <i class="fas fa-wifi text-purple-500 mt-1 mr-3"></i>
+                                        <div>
+                                            <strong data-en="Remote Monitoring" data-id="Monitoring Jarak Jauh">Remote Monitoring</strong>
+                                            <p class="text-sm text-gray-600" data-en="Essential serial output for remote debugging" data-id="Output serial penting untuk debugging jarak jauh">Essential serial output for remote debugging</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="text-lg font-semibold mb-4" data-en="Performance Impact" data-id="Dampak Performa">Performance Impact</h4>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h5 class="font-semibold text-green-800 mb-2" data-en="When Enabled" data-id="Ketika Diaktifkan">When Enabled</h5>
+                                    <ul class="text-sm text-green-700 space-y-1">
+                                        <li data-en="• ~2-5% CPU overhead" data-id="• ~2-5% overhead CPU">• ~2-5% CPU overhead</li>
+                                        <li data-en="• ~1-2KB additional memory" data-id="• ~1-2KB memori tambahan">• ~1-2KB additional memory</li>
+                                        <li data-en="• Comprehensive status messages" data-id="• Pesan status komprehensif">• Comprehensive status messages</li>
+                                        <li data-en="• Real-time sensor data" data-id="• Data sensor real-time">• Real-time sensor data</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h5 class="font-semibold text-blue-800 mb-2" data-en="When Disabled" data-id="Ketika Dinonaktifkan">When Disabled</h5>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li data-en="• No serial overhead" data-id="• Tidak ada overhead serial">• No serial overhead</li>
+                                        <li data-en="• Optimal performance" data-id="• Performa optimal">• Optimal performance</li>
+                                        <li data-en="• Reduced memory usage" data-id="• Penggunaan memori berkurang">• Reduced memory usage</li>
+                                        <li data-en="• Production ready" data-id="• Siap produksi">• Production ready</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Complete Configuration Reference -->
+                        <div class="mt-12">
+                            <h4 class="text-lg font-semibold mb-6" data-en="Complete Configuration Reference" data-id="Referensi Konfigurasi Lengkap">Complete Configuration Reference</h4>
+                            
+                            <!-- Serial Communication Settings -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Serial Communication Settings" data-id="Pengaturan Komunikasi Serial">Serial Communication Settings</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="SERIAL_OUTPUT_ENABLED" data-id="SERIAL_OUTPUT_ENABLED">SERIAL_OUTPUT_ENABLED</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define SERIAL_OUTPUT_ENABLED true</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Controls whether serial output is compiled into the program. When false, all Serial.print() calls are removed during compilation, reducing memory usage and improving performance." data-id="Mengontrol apakah output serial dikompilasi ke dalam program. Ketika false, semua panggilan Serial.print() dihapus selama kompilasi, mengurangi penggunaan memori dan meningkatkan performa.">Controls whether serial output is compiled into the program. When false, all Serial.print() calls are removed during compilation, reducing memory usage and improving performance.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="true" data-id="true">true</span>
+                                                <span class="text-sm text-gray-600" data-en="Enable serial output (default)" data-id="Aktifkan output serial (default)">Enable serial output (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="false" data-id="false">false</span>
+                                                <span class="text-sm text-gray-600" data-en="Disable serial output for production" data-id="Nonaktifkan output serial untuk produksi">Disable serial output for production</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="SERIAL_BAUD_RATE" data-id="SERIAL_BAUD_RATE">SERIAL_BAUD_RATE</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define SERIAL_BAUD_RATE 115200</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Sets the serial communication speed. Higher values allow faster data transmission but may cause issues with some USB-to-serial converters." data-id="Mengatur kecepatan komunikasi serial. Nilai yang lebih tinggi memungkinkan transmisi data yang lebih cepat tetapi dapat menyebabkan masalah dengan beberapa konverter USB-to-serial.">Sets the serial communication speed. Higher values allow faster data transmission but may cause issues with some USB-to-serial converters.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="115200" data-id="115200">115200</span>
+                                                <span class="text-sm text-gray-600" data-en="Recommended speed (default)" data-id="Kecepatan yang direkomendasikan (default)">Recommended speed (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="9600" data-id="9600">9600</span>
+                                                <span class="text-sm text-gray-600" data-en="Slower, more compatible" data-id="Lebih lambat, lebih kompatibel">Slower, more compatible</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Display Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Display Configuration" data-id="Konfigurasi Tampilan">Display Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="DISPLAY_TYPE" data-id="DISPLAY_TYPE">DISPLAY_TYPE</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define DISPLAY_TYPE DISPLAY_LCD_1602</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Selects the type of display to use. Different displays have different pin configurations and capabilities." data-id="Memilih jenis tampilan yang akan digunakan. Tampilan yang berbeda memiliki konfigurasi pin dan kemampuan yang berbeda.">Selects the type of display to use. Different displays have different pin configurations and capabilities.</p>
+                                            <div class="mt-3 space-y-2">
+                                                <div>
+                                                    <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="DISPLAY_LCD_1602" data-id="DISPLAY_LCD_1602">DISPLAY_LCD_1602</span>
+                                                    <span class="text-sm text-gray-600" data-en="16x2 character LCD (default)" data-id="LCD karakter 16x2 (default)">16x2 character LCD (default)</span>
+                                                </div>
+                                                <div>
+                                                    <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="DISPLAY_LCD_2004" data-id="DISPLAY_LCD_2004">DISPLAY_LCD_2004</span>
+                                                    <span class="text-sm text-gray-600" data-en="20x4 character LCD" data-id="LCD karakter 20x4">20x4 character LCD</span>
+                                                </div>
+                                                <div>
+                                                    <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mr-2" data-en="DISPLAY_NONE" data-id="DISPLAY_NONE">DISPLAY_NONE</span>
+                                                    <span class="text-sm text-gray-600" data-en="No display (headless mode)" data-id="Tidak ada tampilan (mode headless)">No display (headless mode)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="LCD_I2C_ADDRESS" data-id="LCD_I2C_ADDRESS">LCD_I2C_ADDRESS</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define LCD_I2C_ADDRESS 0x27</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="I2C address for LCD display. Most common addresses are 0x27 and 0x3F. Use I2C scanner to find the correct address." data-id="Alamat I2C untuk tampilan LCD. Alamat yang paling umum adalah 0x27 dan 0x3F. Gunakan I2C scanner untuk menemukan alamat yang benar.">I2C address for LCD display. Most common addresses are 0x27 and 0x3F. Use I2C scanner to find the correct address.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="0x27" data-id="0x27">0x27</span>
+                                                <span class="text-sm text-gray-600" data-en="Most common address (default)" data-id="Alamat paling umum (default)">Most common address (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="0x3F" data-id="0x3F">0x3F</span>
+                                                <span class="text-sm text-gray-600" data-en="Alternative common address" data-id="Alamat umum alternatif">Alternative common address</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Control Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Control Configuration" data-id="Konfigurasi Kontrol">Control Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="CONTROL_TYPE" data-id="CONTROL_TYPE">CONTROL_TYPE</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define CONTROL_TYPE CONTROL_ROTARY_ENCODER</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Selects the type of manual control interface. This affects which pins are used and how user input is processed." data-id="Memilih jenis antarmuka kontrol manual. Ini mempengaruhi pin mana yang digunakan dan bagaimana input pengguna diproses.">Selects the type of manual control interface. This affects which pins are used and how user input is processed.</p>
+                                            <div class="mt-3 space-y-2">
+                                                <div>
+                                                    <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="CONTROL_ROTARY_ENCODER" data-id="CONTROL_ROTARY_ENCODER">CONTROL_ROTARY_ENCODER</span>
+                                                    <span class="text-sm text-gray-600" data-en="Rotary encoder with button (default)" data-id="Rotary encoder dengan tombol (default)">Rotary encoder with button (default)</span>
+                                                </div>
+                                                <div>
+                                                    <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="CONTROL_POTENTIOMETER" data-id="CONTROL_POTENTIOMETER">CONTROL_POTENTIOMETER</span>
+                                                    <span class="text-sm text-gray-600" data-en="Analog potentiometer" data-id="Potensiometer analog">Analog potentiometer</span>
+                                                </div>
+                                                <div>
+                                                    <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs mr-2" data-en="CONTROL_NONE" data-id="CONTROL_NONE">CONTROL_NONE</span>
+                                                    <span class="text-sm text-gray-600" data-en="Automated only, no manual control" data-id="Otomatis saja, tidak ada kontrol manual">Automated only, no manual control</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="ROTARY_ENCODER_PINS" data-id="ROTARY_ENCODER_PINS">ROTARY_ENCODER_PINS</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define ROTARY_ENCODER_CLK_PIN 18<br>#define ROTARY_ENCODER_DT_PIN 19<br>#define ROTARY_ENCODER_SW_PIN 21</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="GPIO pins for rotary encoder connections. CLK and DT are for rotation detection, SW is for button press." data-id="Pin GPIO untuk koneksi rotary encoder. CLK dan DT untuk deteksi rotasi, SW untuk penekanan tombol.">GPIO pins for rotary encoder connections. CLK and DT are for rotation detection, SW is for button press.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="CLK: Clock pin (default: GPIO 18)" data-id="CLK: Pin clock (default: GPIO 18)">CLK: Clock pin (default: GPIO 18)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="DT: Data pin (default: GPIO 19)" data-id="DT: Pin data (default: GPIO 19)">DT: Data pin (default: GPIO 19)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="SW: Switch pin (default: GPIO 21)" data-id="SW: Pin switch (default: GPIO 21)">SW: Switch pin (default: GPIO 21)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sensor Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Sensor Configuration" data-id="Konfigurasi Sensor">Sensor Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="DHT_SENSOR_TYPE" data-id="DHT_SENSOR_TYPE">DHT_SENSOR_TYPE</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define DHT_SENSOR_TYPE DHT22</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Type of DHT temperature and humidity sensor. DHT22 is more accurate but more expensive than DHT11." data-id="Jenis sensor suhu dan kelembaban DHT. DHT22 lebih akurat tetapi lebih mahal daripada DHT11.">Type of DHT temperature and humidity sensor. DHT22 is more accurate but more expensive than DHT11.</p>
+                                            <div class="mt-3 space-y-2">
+                                                <div>
+                                                    <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="DHT22" data-id="DHT22">DHT22</span>
+                                                    <span class="text-sm text-gray-600" data-en="High accuracy (±0.5°C, ±2% RH)" data-id="Akurasi tinggi (±0.5°C, ±2% RH)">High accuracy (±0.5°C, ±2% RH)</span>
+                                                </div>
+                                                <div>
+                                                    <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="DHT11" data-id="DHT11">DHT11</span>
+                                                    <span class="text-sm text-gray-600" data-en="Lower cost (±2°C, ±5% RH)" data-id="Biaya lebih rendah (±2°C, ±5% RH)">Lower cost (±2°C, ±5% RH)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="DHT_PIN" data-id="DHT_PIN">DHT_PIN</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define DHT_PIN 4</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="GPIO pin connected to DHT sensor data line. Must be a digital pin that supports digital input/output." data-id="Pin GPIO yang terhubung ke jalur data sensor DHT. Harus berupa pin digital yang mendukung input/output digital.">GPIO pin connected to DHT sensor data line. Must be a digital pin that supports digital input/output.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Default: GPIO 4" data-id="Default: GPIO 4">Default: GPIO 4</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Avoid: GPIO 0, 1, 2, 3 (boot pins)" data-id="Hindari: GPIO 0, 1, 2, 3 (pin boot)">Avoid: GPIO 0, 1, 2, 3 (boot pins)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6 grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="SOIL_MOISTURE_PIN" data-id="SOIL_MOISTURE_PIN">SOIL_MOISTURE_PIN</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define SOIL_MOISTURE_PIN 34</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Analog pin for soil moisture sensor. ESP32 has multiple ADC pins available for analog readings." data-id="Pin analog untuk sensor kelembaban tanah. ESP32 memiliki beberapa pin ADC yang tersedia untuk pembacaan analog.">Analog pin for soil moisture sensor. ESP32 has multiple ADC pins available for analog readings.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Default: GPIO 34 (ADC1_CH6)" data-id="Default: GPIO 34 (ADC1_CH6)">Default: GPIO 34 (ADC1_CH6)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Alternative: GPIO 35, 36, 39" data-id="Alternatif: GPIO 35, 36, 39">Alternative: GPIO 35, 36, 39</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="LDR_PIN" data-id="LDR_PIN">LDR_PIN</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define LDR_PIN 39</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Analog pin for Light Dependent Resistor (LDR) sensor. Requires 10kΩ pull-down resistor for proper operation." data-id="Pin analog untuk sensor Light Dependent Resistor (LDR). Memerlukan resistor pull-down 10kΩ untuk operasi yang tepat.">Analog pin for Light Dependent Resistor (LDR) sensor. Requires 10kΩ pull-down resistor for proper operation.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Default: GPIO 39 (ADC1_CH3)" data-id="Default: GPIO 39 (ADC1_CH3)">Default: GPIO 39 (ADC1_CH3)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Required: 10kΩ pull-down resistor" data-id="Diperlukan: Resistor pull-down 10kΩ">Required: 10kΩ pull-down resistor</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Actuator Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Actuator Configuration" data-id="Konfigurasi Aktuator">Actuator Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="PUMP_PIN" data-id="PUMP_PIN">PUMP_PIN</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define PUMP_PIN 2</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="GPIO pin for water pump control. Uses relay or MOSFET for switching. Pin 2 has built-in LED for visual feedback." data-id="Pin GPIO untuk kontrol pompa air. Menggunakan relay atau MOSFET untuk switching. Pin 2 memiliki LED built-in untuk feedback visual.">GPIO pin for water pump control. Uses relay or MOSFET for switching. Pin 2 has built-in LED for visual feedback.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Default: GPIO 2 (built-in LED)" data-id="Default: GPIO 2 (LED built-in)">Default: GPIO 2 (built-in LED)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Requires: Relay or MOSFET module" data-id="Memerlukan: Modul relay atau MOSFET">Requires: Relay or MOSFET module</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="LED_PINS" data-id="LED_PINS">LED_PINS</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define LED_RED_PIN 5<br>#define LED_GREEN_PIN 17<br>#define LED_BLUE_PIN 16</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="GPIO pins for status LED indicators. RGB LED or separate LEDs for different status indications." data-id="Pin GPIO untuk indikator LED status. LED RGB atau LED terpisah untuk indikasi status yang berbeda.">GPIO pins for status LED indicators. RGB LED or separate LEDs for different status indications.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Red: GPIO 5 (error/warning)" data-id="Merah: GPIO 5 (error/warning)">Red: GPIO 5 (error/warning)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Green: GPIO 17 (normal operation)" data-id="Hijau: GPIO 17 (operasi normal)">Green: GPIO 17 (normal operation)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Blue: GPIO 16 (system status)" data-id="Biru: GPIO 16 (status sistem)">Blue: GPIO 16 (system status)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Threshold Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Threshold Configuration" data-id="Konfigurasi Threshold">Threshold Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="SOIL_MOISTURE_THRESHOLD" data-id="SOIL_MOISTURE_THRESHOLD">SOIL_MOISTURE_THRESHOLD</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define SOIL_MOISTURE_THRESHOLD 30</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Soil moisture percentage below which irrigation is triggered. Lower values mean drier soil triggers irrigation." data-id="Persentase kelembaban tanah di bawah mana irigasi dipicu. Nilai yang lebih rendah berarti tanah yang lebih kering memicu irigasi.">Soil moisture percentage below which irrigation is triggered. Lower values mean drier soil triggers irrigation.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 0-100 (percentage)" data-id="Rentang: 0-100 (persentase)">Range: 0-100 (percentage)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 30% (moderate dryness)" data-id="Default: 30% (kekeringan sedang)">Default: 30% (moderate dryness)</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="TEMPERATURE_THRESHOLD" data-id="TEMPERATURE_THRESHOLD">TEMPERATURE_THRESHOLD</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define TEMPERATURE_THRESHOLD 35</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Temperature threshold in Celsius for heat stress detection. Above this temperature, additional irrigation may be triggered." data-id="Threshold suhu dalam Celsius untuk deteksi stres panas. Di atas suhu ini, irigasi tambahan dapat dipicu.">Temperature threshold in Celsius for heat stress detection. Above this temperature, additional irrigation may be triggered.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: -40 to 80°C" data-id="Rentang: -40 hingga 80°C">Range: -40 to 80°C</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 35°C (hot weather)" data-id="Default: 35°C (cuaca panas)">Default: 35°C (hot weather)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6 grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="HUMIDITY_THRESHOLD" data-id="HUMIDITY_THRESHOLD">HUMIDITY_THRESHOLD</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define HUMIDITY_THRESHOLD 20</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Humidity percentage below which dry air conditions are detected. Low humidity may trigger additional irrigation." data-id="Persentase kelembaban di bawah mana kondisi udara kering terdeteksi. Kelembaban rendah dapat memicu irigasi tambahan.">Humidity percentage below which dry air conditions are detected. Low humidity may trigger additional irrigation.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 0-100 (percentage)" data-id="Rentang: 0-100 (persentase)">Range: 0-100 (percentage)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 20% (very dry air)" data-id="Default: 20% (udara sangat kering)">Default: 20% (very dry air)</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="LIGHT_THRESHOLD" data-id="LIGHT_THRESHOLD">LIGHT_THRESHOLD</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define LIGHT_THRESHOLD 500</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Light intensity threshold for day/night detection. Below this value, system operates in night mode." data-id="Threshold intensitas cahaya untuk deteksi siang/malam. Di bawah nilai ini, sistem beroperasi dalam mode malam.">Light intensity threshold for day/night detection. Below this value, system operates in night mode.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 0-4095 (12-bit ADC)" data-id="Rentang: 0-4095 (ADC 12-bit)">Range: 0-4095 (12-bit ADC)</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 500 (dim light)" data-id="Default: 500 (cahaya redup)">Default: 500 (dim light)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- IoT Services Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="IoT Services Configuration" data-id="Konfigurasi Layanan IoT">IoT Services Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="IOT_SERVICES_ENABLED" data-id="IOT_SERVICES_ENABLED">IOT_SERVICES_ENABLED</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define IOT_SERVICES_ENABLED true</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Master switch for all IoT services (ThingSpeak, Adafruit IO). When disabled, only the built-in web UI is available." data-id="Saklar master untuk semua layanan IoT (ThingSpeak, Adafruit IO). Ketika dinonaktifkan, hanya UI web built-in yang tersedia.">Master switch for all IoT services (ThingSpeak, Adafruit IO). When disabled, only the built-in web UI is available.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="true" data-id="true">true</span>
+                                                <span class="text-sm text-gray-600" data-en="Enable IoT services (default)" data-id="Aktifkan layanan IoT (default)">Enable IoT services (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="false" data-id="false">false</span>
+                                                <span class="text-sm text-gray-600" data-en="Disable all IoT services" data-id="Nonaktifkan semua layanan IoT">Disable all IoT services</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="WEB_UI_ONLY_MODE" data-id="WEB_UI_ONLY_MODE">WEB_UI_ONLY_MODE</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define WEB_UI_ONLY_MODE false</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Convenience setting to disable all IoT services and use only the built-in web interface. Automatically sets IOT_SERVICES_ENABLED to false." data-id="Pengaturan kemudahan untuk menonaktifkan semua layanan IoT dan hanya menggunakan antarmuka web built-in. Secara otomatis mengatur IOT_SERVICES_ENABLED ke false.">Convenience setting to disable all IoT services and use only the built-in web interface. Automatically sets IOT_SERVICES_ENABLED to false.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="false" data-id="false">false</span>
+                                                <span class="text-sm text-gray-600" data-en="Normal mode with IoT services (default)" data-id="Mode normal dengan layanan IoT (default)">Normal mode with IoT services (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="true" data-id="true">true</span>
+                                                <span class="text-sm text-gray-600" data-en="Web UI only mode" data-id="Mode UI web saja">Web UI only mode</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6 grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="THINGSPEAK_ENABLED" data-id="THINGSPEAK_ENABLED">THINGSPEAK_ENABLED</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define THINGSPEAK_ENABLED true</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Enable/disable ThingSpeak cloud service for data logging and visualization." data-id="Aktifkan/nonaktifkan layanan cloud ThingSpeak untuk logging dan visualisasi data.">Enable/disable ThingSpeak cloud service for data logging and visualization.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="true" data-id="true">true</span>
+                                                <span class="text-sm text-gray-600" data-en="Enable ThingSpeak (default)" data-id="Aktifkan ThingSpeak (default)">Enable ThingSpeak (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="false" data-id="false">false</span>
+                                                <span class="text-sm text-gray-600" data-en="Disable ThingSpeak" data-id="Nonaktifkan ThingSpeak">Disable ThingSpeak</span>
+                                            </div>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Requires: ThingSpeak API key and channel ID" data-id="Memerlukan: ThingSpeak API key dan channel ID">Requires: ThingSpeak API key and channel ID</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Features: Data logging, charts, alerts" data-id="Fitur: Logging data, grafik, peringatan">Features: Data logging, charts, alerts</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="ADAFRUIT_IO_ENABLED" data-id="ADAFRUIT_IO_ENABLED">ADAFRUIT_IO_ENABLED</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define ADAFRUIT_IO_ENABLED true</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Enable/disable Adafruit IO cloud service for IoT data management and dashboards." data-id="Aktifkan/nonaktifkan layanan cloud Adafruit IO untuk manajemen data IoT dan dashboard.">Enable/disable Adafruit IO cloud service for IoT data management and dashboards.</p>
+                                            <div class="mt-3">
+                                                <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs mr-2" data-en="true" data-id="true">true</span>
+                                                <span class="text-sm text-gray-600" data-en="Enable Adafruit IO (default)" data-id="Aktifkan Adafruit IO (default)">Enable Adafruit IO (default)</span>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2" data-en="false" data-id="false">false</span>
+                                                <span class="text-sm text-gray-600" data-en="Disable Adafruit IO" data-id="Nonaktifkan Adafruit IO">Disable Adafruit IO</span>
+                                            </div>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Requires: Adafruit IO username and key" data-id="Memerlukan: Adafruit IO username dan key">Requires: Adafruit IO username and key</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Features: Real-time dashboards, feeds" data-id="Fitur: Dashboard real-time, feeds">Features: Real-time dashboards, feeds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Timing Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-primary" data-en="Timing Configuration" data-id="Konfigurasi Timing">Timing Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="IRRIGATION_DURATION" data-id="IRRIGATION_DURATION">IRRIGATION_DURATION</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define IRRIGATION_DURATION 5000</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Duration in milliseconds for irrigation cycles. Longer duration provides more water but may cause overwatering." data-id="Durasi dalam milidetik untuk siklus irigasi. Durasi yang lebih lama memberikan lebih banyak air tetapi dapat menyebabkan overwatering.">Duration in milliseconds for irrigation cycles. Longer duration provides more water but may cause overwatering.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 1000-60000 ms" data-id="Rentang: 1000-60000 ms">Range: 1000-60000 ms</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 5000 ms (5 seconds)" data-id="Default: 5000 ms (5 detik)">Default: 5000 ms (5 seconds)</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="SENSOR_READ_INTERVAL" data-id="SENSOR_READ_INTERVAL">SENSOR_READ_INTERVAL</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define SENSOR_READ_INTERVAL 1000</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Interval in milliseconds between sensor readings. Shorter intervals provide more responsive control but increase power consumption." data-id="Interval dalam milidetik antara pembacaan sensor. Interval yang lebih pendek memberikan kontrol yang lebih responsif tetapi meningkatkan konsumsi daya.">Interval in milliseconds between sensor readings. Shorter intervals provide more responsive control but increase power consumption.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 500-10000 ms" data-id="Rentang: 500-10000 ms">Range: 500-10000 ms</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 1000 ms (1 second)" data-id="Default: 1000 ms (1 detik)">Default: 1000 ms (1 second)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6 grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="DISPLAY_UPDATE_INTERVAL" data-id="DISPLAY_UPDATE_INTERVAL">DISPLAY_UPDATE_INTERVAL</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define DISPLAY_UPDATE_INTERVAL 2000</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Interval in milliseconds for display updates. Longer intervals reduce flickering but make display less responsive." data-id="Interval dalam milidetik untuk update tampilan. Interval yang lebih lama mengurangi flickering tetapi membuat tampilan kurang responsif.">Interval in milliseconds for display updates. Longer intervals reduce flickering but make display less responsive.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 1000-10000 ms" data-id="Rentang: 1000-10000 ms">Range: 1000-10000 ms</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 2000 ms (2 seconds)" data-id="Default: 2000 ms (2 detik)">Default: 2000 ms (2 seconds)</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="font-semibold mb-3" data-en="WATCHDOG_TIMEOUT" data-id="WATCHDOG_TIMEOUT">WATCHDOG_TIMEOUT</h6>
+                                            <div class="bg-white p-4 rounded border">
+                                                <code class="text-sm">#define WATCHDOG_TIMEOUT 30</code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-2" data-en="Watchdog timeout in seconds. System will restart if main loop doesn't respond within this time." data-id="Timeout watchdog dalam detik. Sistem akan restart jika loop utama tidak merespons dalam waktu ini.">Watchdog timeout in seconds. System will restart if main loop doesn't respond within this time.</p>
+                                            <div class="mt-3">
+                                                <span class="text-sm text-gray-600" data-en="Range: 10-300 seconds" data-id="Rentang: 10-300 detik">Range: 10-300 seconds</span><br>
+                                                <span class="text-sm text-gray-600" data-en="Default: 30 seconds" data-id="Default: 30 detik">Default: 30 seconds</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Configuration Examples -->
+                        <div class="mt-12">
+                            <h4 class="text-lg font-semibold mb-6" data-en="Configuration Examples" data-id="Contoh Konfigurasi">Configuration Examples</h4>
+                            
+                            <!-- Development Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-green-600" data-en="Development & Testing Configuration" data-id="Konfigurasi Pengembangan & Pengujian">Development & Testing Configuration</h5>
+                                <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                                    <p class="text-sm text-green-800 mb-4" data-en="This configuration is optimized for development, testing, and debugging with full serial output and detailed logging." data-id="Konfigurasi ini dioptimalkan untuk pengembangan, pengujian, dan debugging dengan output serial lengkap dan logging detail.">This configuration is optimized for development, testing, and debugging with full serial output and detailed logging.</p>
+                                    <div class="bg-white p-4 rounded border">
+                                        <pre class="text-sm text-gray-700"><code>// Development Configuration
+// Serial Communication
+#define SERIAL_OUTPUT_ENABLED true
+#define SERIAL_BAUD_RATE 115200
+
+// Display Configuration
+#define DISPLAY_TYPE DISPLAY_LCD_1602
+#define LCD_I2C_ADDRESS 0x27
+
+// Control Configuration
+#define CONTROL_TYPE CONTROL_ROTARY_ENCODER
+#define ROTARY_ENCODER_CLK_PIN 18
+#define ROTARY_ENCODER_DT_PIN 19
+#define ROTARY_ENCODER_SW_PIN 21
+
+// Sensor Configuration
+#define DHT_SENSOR_TYPE DHT22
+#define DHT_PIN 4
+#define SOIL_MOISTURE_PIN 34
+#define LDR_PIN 39
+
+// Actuator Configuration
+#define PUMP_PIN 2
+#define LED_RED_PIN 5
+#define LED_GREEN_PIN 17
+#define LED_BLUE_PIN 16
+
+// Threshold Configuration
+#define SOIL_MOISTURE_THRESHOLD 30
+#define TEMPERATURE_THRESHOLD 35
+#define HUMIDITY_THRESHOLD 20
+#define LIGHT_THRESHOLD 500
+
+// Timing Configuration
+#define IRRIGATION_DURATION 5000
+#define SENSOR_READ_INTERVAL 1000
+#define DISPLAY_UPDATE_INTERVAL 2000
+#define WATCHDOG_TIMEOUT 30</code></pre>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="font-semibold text-green-800 mb-2" data-en="Features:" data-id="Fitur:">Features:</h6>
+                                        <ul class="text-sm text-green-700 space-y-1">
+                                            <li data-en="• Full serial output for debugging" data-id="• Output serial lengkap untuk debugging">• Full serial output for debugging</li>
+                                            <li data-en="• Fast sensor reading (1 second intervals)" data-id="• Pembacaan sensor cepat (interval 1 detik)">• Fast sensor reading (1 second intervals)</li>
+                                            <li data-en="• Responsive display updates" data-id="• Update tampilan responsif">• Responsive display updates</li>
+                                            <li data-en="• Manual control with rotary encoder" data-id="• Kontrol manual dengan rotary encoder">• Manual control with rotary encoder</li>
+                                            <li data-en="• Comprehensive status LED indicators" data-id="• Indikator LED status komprehensif">• Comprehensive status LED indicators</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Production Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-blue-600" data-en="Production Deployment Configuration" data-id="Konfigurasi Deployment Produksi">Production Deployment Configuration</h5>
+                                <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                                    <p class="text-sm text-blue-800 mb-4" data-en="This configuration is optimized for production deployment with disabled serial output, longer intervals, and headless operation." data-id="Konfigurasi ini dioptimalkan untuk deployment produksi dengan output serial dinonaktifkan, interval yang lebih lama, dan operasi headless.">This configuration is optimized for production deployment with disabled serial output, longer intervals, and headless operation.</p>
+                                    <div class="bg-white p-4 rounded border">
+                                        <pre class="text-sm text-gray-700"><code>// Production Configuration
+// Serial Communication
+#define SERIAL_OUTPUT_ENABLED false
+#define SERIAL_BAUD_RATE 115200
+
+// Display Configuration
+#define DISPLAY_TYPE DISPLAY_NONE
+#define LCD_I2C_ADDRESS 0x27
+
+// Control Configuration
+#define CONTROL_TYPE CONTROL_NONE
+
+// Sensor Configuration
+#define DHT_SENSOR_TYPE DHT22
+#define DHT_PIN 4
+#define SOIL_MOISTURE_PIN 34
+#define LDR_PIN 39
+
+// Actuator Configuration
+#define PUMP_PIN 2
+#define LED_RED_PIN 5
+#define LED_GREEN_PIN 17
+#define LED_BLUE_PIN 16
+
+// Threshold Configuration
+#define SOIL_MOISTURE_THRESHOLD 25
+#define TEMPERATURE_THRESHOLD 40
+#define HUMIDITY_THRESHOLD 15
+#define LIGHT_THRESHOLD 400
+
+// Timing Configuration
+#define IRRIGATION_DURATION 8000
+#define SENSOR_READ_INTERVAL 5000
+#define DISPLAY_UPDATE_INTERVAL 10000
+#define WATCHDOG_TIMEOUT 60</code></pre>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="font-semibold text-blue-800 mb-2" data-en="Features:" data-id="Fitur:">Features:</h6>
+                                        <ul class="text-sm text-blue-700 space-y-1">
+                                            <li data-en="• No serial output for optimal performance" data-id="• Tidak ada output serial untuk performa optimal">• No serial output for optimal performance</li>
+                                            <li data-en="• Headless operation (no display)" data-id="• Operasi headless (tidak ada tampilan)">• Headless operation (no display)</li>
+                                            <li data-en="• Automated operation only" data-id="• Operasi otomatis saja">• Automated operation only</li>
+                                            <li data-en="• Longer intervals for power efficiency" data-id="• Interval yang lebih lama untuk efisiensi daya">• Longer intervals for power efficiency</li>
+                                            <li data-en="• Lower thresholds for water conservation" data-id="• Threshold yang lebih rendah untuk konservasi air">• Lower thresholds for water conservation</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Remote Monitoring Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-purple-600" data-en="Remote Monitoring Configuration" data-id="Konfigurasi Monitoring Jarak Jauh">Remote Monitoring Configuration</h5>
+                                <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                                    <p class="text-sm text-purple-800 mb-4" data-en="This configuration is optimized for remote monitoring with essential serial output, web interface, and cloud connectivity." data-id="Konfigurasi ini dioptimalkan untuk monitoring jarak jauh dengan output serial penting, antarmuka web, dan konektivitas cloud.">This configuration is optimized for remote monitoring with essential serial output, web interface, and cloud connectivity.</p>
+                                    <div class="bg-white p-4 rounded border">
+                                        <pre class="text-sm text-gray-700"><code>// Remote Monitoring Configuration
+// Serial Communication
+#define SERIAL_OUTPUT_ENABLED true
+#define SERIAL_BAUD_RATE 115200
+
+// Display Configuration
+#define DISPLAY_TYPE DISPLAY_LCD_2004
+#define LCD_I2C_ADDRESS 0x27
+
+// Control Configuration
+#define CONTROL_TYPE CONTROL_ROTARY_ENCODER
+#define ROTARY_ENCODER_CLK_PIN 18
+#define ROTARY_ENCODER_DT_PIN 19
+#define ROTARY_ENCODER_SW_PIN 21
+
+// Sensor Configuration
+#define DHT_SENSOR_TYPE DHT22
+#define DHT_PIN 4
+#define SOIL_MOISTURE_PIN 34
+#define LDR_PIN 39
+
+// Actuator Configuration
+#define PUMP_PIN 2
+#define LED_RED_PIN 5
+#define LED_GREEN_PIN 17
+#define LED_BLUE_PIN 16
+
+// Threshold Configuration
+#define SOIL_MOISTURE_THRESHOLD 35
+#define TEMPERATURE_THRESHOLD 30
+#define HUMIDITY_THRESHOLD 25
+#define LIGHT_THRESHOLD 600
+
+// Timing Configuration
+#define IRRIGATION_DURATION 6000
+#define SENSOR_READ_INTERVAL 2000
+#define DISPLAY_UPDATE_INTERVAL 3000
+#define WATCHDOG_TIMEOUT 45</code></pre>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="font-semibold text-purple-800 mb-2" data-en="Features:" data-id="Fitur:">Features:</h6>
+                                        <ul class="text-sm text-purple-700 space-y-1">
+                                            <li data-en="• Essential serial output for remote debugging" data-id="• Output serial penting untuk debugging jarak jauh">• Essential serial output for remote debugging</li>
+                                            <li data-en="• Large display for better visibility" data-id="• Tampilan besar untuk visibilitas yang lebih baik">• Large display for better visibility</li>
+                                            <li data-en="• Manual control for remote adjustments" data-id="• Kontrol manual untuk penyesuaian jarak jauh">• Manual control for remote adjustments</li>
+                                            <li data-en="• Balanced intervals for monitoring" data-id="• Interval seimbang untuk monitoring">• Balanced intervals for monitoring</li>
+                                            <li data-en="• Moderate thresholds for safety" data-id="• Threshold sedang untuk keamanan">• Moderate thresholds for safety</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Web UI Only Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-orange-600" data-en="Web UI Only Configuration" data-id="Konfigurasi UI Web Saja">Web UI Only Configuration</h5>
+                                <div class="bg-orange-50 p-6 rounded-lg border border-orange-200">
+                                    <p class="text-sm text-orange-800 mb-4" data-en="This configuration disables all IoT services and uses only the built-in web interface for monitoring and control." data-id="Konfigurasi ini menonaktifkan semua layanan IoT dan hanya menggunakan antarmuka web built-in untuk monitoring dan kontrol.">This configuration disables all IoT services and uses only the built-in web interface for monitoring and control.</p>
+                                    <div class="bg-white p-4 rounded border">
+                                        <pre class="text-sm text-gray-700"><code>// Web UI Only Configuration
+// Serial Communication
+#define SERIAL_OUTPUT_ENABLED true
+#define SERIAL_BAUD_RATE 115200
+
+// IoT Services Configuration
+#define IOT_SERVICES_ENABLED false
+#define WEB_UI_ONLY_MODE true
+#define THINGSPEAK_ENABLED false
+#define ADAFRUIT_IO_ENABLED false
+
+// Display Configuration
+#define DISPLAY_TYPE DISPLAY_LCD_1602
+#define LCD_I2C_ADDRESS 0x27
+
+// Control Configuration
+#define CONTROL_TYPE CONTROL_ROTARY_ENCODER
+#define ROTARY_ENCODER_CLK_PIN 18
+#define ROTARY_ENCODER_DT_PIN 19
+#define ROTARY_ENCODER_SW_PIN 21
+
+// Sensor Configuration
+#define DHT_SENSOR_TYPE DHT22
+#define DHT_PIN 4
+#define SOIL_MOISTURE_PIN 34
+#define LDR_PIN 39
+
+// Actuator Configuration
+#define PUMP_PIN 2
+#define LED_RED_PIN 5
+#define LED_GREEN_PIN 17
+#define LED_BLUE_PIN 16
+
+// Threshold Configuration
+#define SOIL_MOISTURE_THRESHOLD 30
+#define TEMPERATURE_THRESHOLD 35
+#define HUMIDITY_THRESHOLD 20
+#define LIGHT_THRESHOLD 500
+
+// Timing Configuration
+#define IRRIGATION_DURATION 5000
+#define SENSOR_READ_INTERVAL 2000
+#define DISPLAY_UPDATE_INTERVAL 2000
+#define WATCHDOG_TIMEOUT 30</code></pre>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="font-semibold text-orange-800 mb-2" data-en="Features:" data-id="Fitur:">Features:</h6>
+                                        <ul class="text-sm text-orange-700 space-y-1">
+                                            <li data-en="• Built-in web interface only" data-id="• Antarmuka web built-in saja">• Built-in web interface only</li>
+                                            <li data-en="• No external IoT services" data-id="• Tidak ada layanan IoT eksternal">• No external IoT services</li>
+                                            <li data-en="• Local data monitoring" data-id="• Monitoring data lokal">• Local data monitoring</li>
+                                            <li data-en="• Manual control via web UI" data-id="• Kontrol manual via UI web">• Manual control via web UI</li>
+                                            <li data-en="• Reduced memory usage" data-id="• Penggunaan memori berkurang">• Reduced memory usage</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Minimal Configuration -->
+                            <div class="mb-8">
+                                <h5 class="text-lg font-semibold mb-4 text-gray-600" data-en="Minimal Configuration" data-id="Konfigurasi Minimal">Minimal Configuration</h5>
+                                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                    <p class="text-sm text-gray-800 mb-4" data-en="This configuration uses minimal components for basic automated irrigation with soil moisture sensor only." data-id="Konfigurasi ini menggunakan komponen minimal untuk irigasi otomatis dasar dengan sensor kelembaban tanah saja.">This configuration uses minimal components for basic automated irrigation with soil moisture sensor only.</p>
+                                    <div class="bg-white p-4 rounded border">
+                                        <pre class="text-sm text-gray-700"><code>// Minimal Configuration
+// Serial Communication
+#define SERIAL_OUTPUT_ENABLED false
+#define SERIAL_BAUD_RATE 115200
+
+// Display Configuration
+#define DISPLAY_TYPE DISPLAY_NONE
+
+// Control Configuration
+#define CONTROL_TYPE CONTROL_NONE
+
+// Sensor Configuration
+#define DHT_SENSOR_TYPE DHT11
+#define DHT_PIN 4
+#define SOIL_MOISTURE_PIN 34
+#define LDR_PIN 39
+
+// Actuator Configuration
+#define PUMP_PIN 2
+#define LED_RED_PIN 5
+#define LED_GREEN_PIN 17
+#define LED_BLUE_PIN 16
+
+// Threshold Configuration
+#define SOIL_MOISTURE_THRESHOLD 20
+#define TEMPERATURE_THRESHOLD 50
+#define HUMIDITY_THRESHOLD 10
+#define LIGHT_THRESHOLD 300
+
+// Timing Configuration
+#define IRRIGATION_DURATION 10000
+#define SENSOR_READ_INTERVAL 10000
+#define DISPLAY_UPDATE_INTERVAL 30000
+#define WATCHDOG_TIMEOUT 120</code></pre>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="font-semibold text-gray-800 mb-2" data-en="Features:" data-id="Fitur:">Features:</h6>
+                                        <ul class="text-sm text-gray-700 space-y-1">
+                                            <li data-en="• Minimal hardware requirements" data-id="• Persyaratan perangkat keras minimal">• Minimal hardware requirements</li>
+                                            <li data-en="• Soil moisture sensor only" data-id="• Sensor kelembaban tanah saja">• Soil moisture sensor only</li>
+                                            <li data-en="• No display or manual control" data-id="• Tidak ada tampilan atau kontrol manual">• No display or manual control</li>
+                                            <li data-en="• Long intervals for power efficiency" data-id="• Interval panjang untuk efisiensi daya">• Long intervals for power efficiency</li>
+                                            <li data-en="• Low-cost DHT11 sensor" data-id="• Sensor DHT11 berbiaya rendah">• Low-cost DHT11 sensor</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -528,10 +1311,52 @@
                     <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">5</div>
                     <div class="flex-1">
                         <h3 class="text-xl font-semibold mb-3" data-en="Configure System" data-id="Konfigurasi Sistem">Configure System</h3>
-                        <p class="text-gray-600 mb-4" data-en="Edit the configuration file to match your hardware setup." data-id="Edit file konfigurasi untuk menyesuaikan dengan setup perangkat keras Anda.">Edit the configuration file to match your hardware setup.</p>
+                        <p class="text-gray-600 mb-4" data-en="Edit the configuration file to match your hardware setup and requirements." data-id="Edit file konfigurasi untuk menyesuaikan dengan setup perangkat keras dan kebutuhan Anda.">Edit the configuration file to match your hardware setup and requirements.</p>
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <code class="text-sm">MainCode/offline/config.h  # For offline version</code><br>
                             <code class="text-sm">MainCode/online/config.h   # For online version</code>
+                        </div>
+                        
+                        <!-- Configuration Examples -->
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold mb-4" data-en="Key Configuration Options" data-id="Opsi Konfigurasi Utama">Key Configuration Options</h4>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h5 class="font-semibold mb-3" data-en="Serial Output" data-id="Output Serial">Serial Output</h5>
+                                    <div class="bg-gray-50 p-3 rounded text-sm">
+                                        <code>#define SERIAL_OUTPUT_ENABLED true</code><br>
+                                        <span class="text-gray-600" data-en="Enable/disable serial monitor output" data-id="Aktifkan/nonaktifkan output serial monitor">Enable/disable serial monitor output</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h5 class="font-semibold mb-3" data-en="IoT Services" data-id="Layanan IoT">IoT Services</h5>
+                                    <div class="bg-gray-50 p-3 rounded text-sm">
+                                        <code>#define IOT_SERVICES_ENABLED true</code><br>
+                                        <span class="text-gray-600" data-en="Enable/disable IoT cloud services" data-id="Aktifkan/nonaktifkan layanan cloud IoT">Enable/disable IoT cloud services</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h5 class="font-semibold mb-3" data-en="Display Type" data-id="Tipe Tampilan">Display Type</h5>
+                                    <div class="bg-gray-50 p-3 rounded text-sm">
+                                        <code>#define DISPLAY_TYPE DISPLAY_LCD_1602</code><br>
+                                        <span class="text-gray-600" data-en="Choose LCD or headless mode" data-id="Pilih mode LCD atau tanpa layar">Choose LCD or headless mode</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h5 class="font-semibold mb-3" data-en="Control Type" data-id="Tipe Kontrol">Control Type</h5>
+                                    <div class="bg-gray-50 p-3 rounded text-sm">
+                                        <code>#define CONTROL_TYPE CONTROL_ROTARY_ENCODER</code><br>
+                                        <span class="text-gray-600" data-en="Manual control or automated only" data-id="Kontrol manual atau otomatis saja">Manual control or automated only</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h5 class="font-semibold mb-3" data-en="Sensor Type" data-id="Tipe Sensor">Sensor Type</h5>
+                                    <div class="bg-gray-50 p-3 rounded text-sm">
+                                        <code>#define DHT_SENSOR_TYPE DHT22</code><br>
+                                        <span class="text-gray-600" data-en="Temperature and humidity sensor" data-id="Sensor suhu dan kelembaban">Temperature and humidity sensor</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -554,9 +1379,15 @@
                     <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 mt-1">7</div>
                     <div class="flex-1">
                         <h3 class="text-xl font-semibold mb-3" data-en="Monitor System" data-id="Monitor Sistem">Monitor System</h3>
-                        <p class="text-gray-600 mb-4" data-en="Use serial output or web interface to monitor system operation." data-id="Gunakan output serial atau antarmuka web untuk memantau operasi sistem.">Use serial output or web interface to monitor system operation.</p>
+                        <p class="text-gray-600 mb-4" data-en="Use configurable serial output or web interface to monitor system operation." data-id="Gunakan output serial yang dapat dikonfigurasi atau antarmuka web untuk memantau operasi sistem.">Use configurable serial output or web interface to monitor system operation.</p>
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <code class="text-sm" data-en="Serial Monitor (115200 baud) or Web Interface" data-id="Serial Monitor (115200 baud) atau Antarmuka Web">Serial Monitor (115200 baud) or Web Interface</code>
+                        </div>
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-800" data-en="💡 Tip: Disable serial output (SERIAL_OUTPUT_ENABLED false) for production deployments to improve performance." data-id="💡 Tip: Nonaktifkan output serial (SERIAL_OUTPUT_ENABLED false) untuk deployment produksi untuk meningkatkan performa.">💡 Tip: Disable serial output (SERIAL_OUTPUT_ENABLED false) for production deployments to improve performance.</p>
+                        </div>
+                        <div class="mt-4 p-4 bg-orange-50 rounded-lg">
+                            <p class="text-sm text-orange-800" data-en="🌐 IoT Services: Set WEB_UI_ONLY_MODE true to disable all IoT services and use only the built-in web interface." data-id="🌐 Layanan IoT: Set WEB_UI_ONLY_MODE true untuk menonaktifkan semua layanan IoT dan hanya menggunakan antarmuka web built-in.">🌐 IoT Services: Set WEB_UI_ONLY_MODE true to disable all IoT services and use only the built-in web interface.</p>
                         </div>
                     </div>
                 </div>
