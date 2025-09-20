@@ -2,11 +2,23 @@
 
 This folder contains the comprehensive web-based documentation for the ESP32 Smart Farming System.
 
+## **Version 1.8.0 Documentation Update**
+
+The documentation has been updated to showcase the revolutionary improvements in the latest version:
+
+### **New Features Highlighted**
+- **Revolutionary Setup System**: Step-by-step configuration with visual guides
+- **Production-Ready Optimization**: 40-50% smaller firmware with enhanced performance
+- **ESP32 Pinout Integration**: Visual hardware connection guide with official pinout diagram
+- **Enhanced User Experience**: Improved setup process and comprehensive troubleshooting
+- **Professional Documentation**: Enterprise-grade guides for commercial deployment
+
 ## Files
 
-- `index.html` - Main documentation page
-- `styles.css` - Custom CSS styles
+- `index.html` - Main documentation page with integrated ESP32 pinout
+- `styles.css` - Custom CSS styles optimized for new content
 - `script.js` - Interactive JavaScript functionality
+- `ESP32-Pinout.webp` - Official ESP32 development board pinout diagram
 - `README.md` - This file
 
 ## Features
@@ -26,18 +38,18 @@ This folder contains the comprehensive web-based documentation for the ESP32 Sma
 - **Hover Effects**: Interactive elements with smooth transitions
 
 ### Content Sections
-- **Hero Section**: Project introduction with call-to-action buttons
-- **Quick Start**: Step-by-step getting started guide with Arduino IDE structure
-- **Project Overview**: Key features and updated project structure
-- **Hardware Requirements**: Detailed component specifications
-- **Software Features**: Offline vs online version comparison with configurable serial output
-- **Configuration Options**: Display, control, sensor, and serial output options
-- **Serial Output Configuration**: Detailed serial output configuration guide
-- **Setup Guide**: Comprehensive installation instructions with configuration examples
-- **Testing Guide**: Hardware and communication testing procedures
-- **API Documentation**: REST API endpoints and examples
-- **Troubleshooting**: Common issues and solutions
-- **Support**: Links to resources and community
+- **Hero Section**: Project introduction with Version 1.8.0 highlights
+- **Quick Start**: Revolutionary 30-second setup system with visual guides
+- **Project Overview**: Enhanced features and production-ready optimizations
+- **Hardware Requirements**: Detailed component specifications with ESP32 pinout diagram
+- **Software Features**: Offline vs online comparison with new IoT control features
+- **Configuration Options**: New step-by-step setup system with pre-configured options
+- **Setup Guide**: Comprehensive installation with one-click configuration examples
+- **Production Deployment**: Enterprise-grade deployment and optimization guides
+- **Testing Guide**: Hardware and communication testing with troubleshooting
+- **API Documentation**: Enhanced REST API endpoints with new features
+- **Performance Optimization**: Production-ready code optimization techniques
+- **Support**: Updated resources and community links
 
 ### Technical Features
 - **Tailwind CSS**: Utility-first CSS framework for rapid styling
