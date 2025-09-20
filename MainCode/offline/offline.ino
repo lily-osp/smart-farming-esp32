@@ -15,7 +15,7 @@
  * - LEDs for status indication
  * 
  * Author: Azzar Budiyanto
- * Version: 1.0.0
+ * Version: 1.8.0
  * Date: 2024
  */
 
@@ -300,8 +300,7 @@ void initializeSensors() {
       systemState.systemOK = false;
     } else {
       #if SERIAL_OUTPUT_ENABLED
-        Serial.println("DHT sensor initialized successfully (" + String(DHT_SENSOR_TYPE == DHT11 ? "DHT11" : "DHT22") + ")");
-        Serial.println("Test reading - Temperature: " + String(testTemp) + "°C, Humidity: " + String(testHumidity) + "%");
+        Serial.println("DHT sensor initialized successfully");
       #endif
     }
   #else
@@ -448,37 +447,18 @@ void readSensors() {
   if (sensorValidation.temperatureValid && sensorValidation.humidityValid) {
     systemState.temperature = temperature;
     systemState.humidity = humidity;
-    // Reset sensor error counter on successful reading
-    systemState.sensorErrors = 0;
+    // Reset DHT sensor disconnect counter on successful reading
     sensorValidation.disconnectCount = 0;
-  } else {
-    systemState.sensorErrors++;
-    #if SERIAL_OUTPUT_ENABLED && DEBUG_MODE
-      Serial.println("Warning: Invalid DHT sensor readings detected!");
-      Serial.println("  Temperature valid: " + String(sensorValidation.temperatureValid));
-      Serial.println("  Humidity valid: " + String(sensorValidation.humidityValid));
-      Serial.println("  Soil moisture valid: " + String(sensorValidation.soilMoistureValid));
-    #endif
   }
   
-  // Debug output
-  if (DEBUG_MODE) {
-    #if SERIAL_OUTPUT_ENABLED
-      Serial.println("Sensor Readings:");
-      #if DHT_ENABLED
-        Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
-        Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
-      #else
-        Serial.println("  DHT Sensor: Disabled");
-      #endif
-      Serial.println("  Soil Moisture: " + String(soilMoisturePercent) + "% (Valid: " + String(sensorValidation.soilMoistureValid ? "Yes" : "No") + ")");
-      #if LDR_ENABLED
-        Serial.println("  Light Level: " + String(lightLevelPercent) + "% (Valid: " + String(sensorValidation.lightLevelValid ? "Yes" : "No") + ")");
-      #else
-        Serial.println("  LDR Sensor: Disabled");
-      #endif
-    #endif
+  // Only count soil moisture sensor errors as critical for system health
+  if (!sensorValidation.soilMoistureValid) {
+    systemState.sensorErrors++;
+  } else {
+    // Reset critical sensor error counter on successful soil moisture reading
+    systemState.sensorErrors = 0;
   }
+  
 }
 
 // =============================================================================
@@ -609,27 +589,9 @@ void controlIrrigation() {
   // Check daily irrigation limit
   bool withinDailyLimit = (systemState.dailyIrrigations < MAX_DAILY_IRRIGATIONS);
   
-  // Check if system is OK
-  bool systemHealthy = systemState.systemOK && (systemState.sensorErrors < MAX_SENSOR_ERRORS);
+  // Check if system is OK for irrigation (only critical for soil sensor, not DHT/LDR)
+  bool systemHealthy = systemState.systemOK && sensorValidation.soilMoistureValid;
   
-  // Debug output to help identify why pump doesn't activate
-  #if SERIAL_OUTPUT_ENABLED && DEBUG_MODE
-    if (needsIrrigation) {
-      Serial.println("=== IRRIGATION CONTROL DEBUG ===");
-      Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "% (Threshold: " + String(threshold) + "%)");
-      Serial.println("Needs Irrigation: " + String(needsIrrigation ? "YES" : "NO"));
-      Serial.println("Cooldown Expired: " + String(cooldownExpired ? "YES" : "NO"));
-      Serial.println("Within Daily Limit: " + String(withinDailyLimit ? "YES (" + String(systemState.dailyIrrigations) + "/" + String(MAX_DAILY_IRRIGATIONS) + ")" : "NO"));
-      Serial.println("System Healthy: " + String(systemHealthy ? "YES" : "NO (SystemOK: " + String(systemState.systemOK) + ", Errors: " + String(systemState.sensorErrors) + ")"));
-      Serial.println("Pump Not Active: " + String(!systemState.pumpActive ? "YES" : "NO"));
-      
-      if (!cooldownExpired) {
-        unsigned long remainingCooldown = IRRIGATION_COOLDOWN - (currentTime - systemState.lastIrrigation);
-        Serial.println("Remaining Cooldown: " + String(remainingCooldown / 1000) + " seconds");
-      }
-      Serial.println("================================");
-    }
-  #endif
   
   // Start irrigation if all conditions are met
   if (needsIrrigation && cooldownExpired && withinDailyLimit && systemHealthy && !systemState.pumpActive) {
@@ -768,21 +730,6 @@ void logSystemData() {
   static unsigned long lastLogTime = 0;
   
   if (currentTime - lastLogTime >= LOG_INTERVAL) {
-    #if SERIAL_OUTPUT_ENABLED
-      Serial.println("=== SYSTEM DATA LOG ===");
-      Serial.println("Timestamp: " + String(currentTime));
-      Serial.println("Temperature: " + String(systemState.temperature, 2) + "°C");
-      Serial.println("Humidity: " + String(systemState.humidity, 2) + "%");
-      Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
-      Serial.println("Soil Moisture Raw: " + String(systemState.soilMoistureRaw));
-      Serial.println("Pump Active: " + String(systemState.pumpActive ? "Yes" : "No"));
-      Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
-      Serial.println("System OK: " + String(systemState.systemOK ? "Yes" : "No"));
-      Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
-      Serial.println("Free Heap: " + String(ESP.getFreeHeap()) + " bytes");
-      Serial.println("========================");
-    #endif
-    
     lastLogTime = currentTime;
   }
 }
@@ -1031,16 +978,7 @@ void outputToSerial() {
     
     if (currentTime - lastSerialOutput >= DISPLAY_UPDATE_INTERVAL) {
       #if SERIAL_OUTPUT_ENABLED
-        Serial.println("=== SMART FARMING STATUS ===");
-        Serial.println("Temperature: " + String(systemState.temperature, 1) + "°C");
-        Serial.println("Humidity: " + String(systemState.humidity, 1) + "%");
-        Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "%");
-        Serial.println("Pump Status: " + String(systemState.pumpActive ? "ACTIVE" : "INACTIVE"));
-        Serial.println("System Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
-        Serial.println("Daily Irrigations: " + String(systemState.dailyIrrigations));
-        Serial.println("Sensor Errors: " + String(systemState.sensorErrors));
-        Serial.println("Uptime: " + String(currentTime / 1000) + " seconds");
-        Serial.println("==========================");
+        Serial.println("System Status: " + String(systemState.systemOK ? "OK" : "ERROR") + " | Soil: " + String(systemState.soilMoisturePercent) + "% | Pump: " + String(systemState.pumpActive ? "ON" : "OFF"));
       #endif
       
       lastSerialOutput = currentTime;
@@ -1097,9 +1035,6 @@ void initializeControl() {
     
     #if SERIAL_OUTPUT_ENABLED
       Serial.println("Potentiometer control initialized");
-      Serial.println("Initial ADC reading: " + String(initialReading));
-      Serial.println("Smoothing samples: " + String(POTENTIOMETER_SMOOTHING_SAMPLES));
-      Serial.println("Hysteresis: " + String(POTENTIOMETER_HYSTERESIS) + "%");
     #endif
     
   #else
@@ -1286,12 +1221,6 @@ void handlePotentiometer() {
           Serial.println("Status: " + String(systemState.soilMoisturePercent < systemState.adjustedThreshold ? "NEEDS WATER" : "OK"));
           Serial.println("=============================");
           systemState.thresholdChanged = false;
-        }
-      #elif SERIAL_OUTPUT_ENABLED
-        static unsigned long lastPotOutput = 0;
-        if (currentTime - lastPotOutput >= 2000) { // Output every 2 seconds
-          Serial.println("Threshold: " + String(systemState.adjustedThreshold) + "% | Current: " + String(systemState.soilMoisturePercent) + "%");
-          lastPotOutput = currentTime;
         }
       #endif
     }

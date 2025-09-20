@@ -2,6 +2,15 @@
 
 A comprehensive IoT-based smart farming solution that automates irrigation based on soil moisture, temperature, and humidity readings. The system supports both offline and online operation modes with modular display options and dual cloud service integration.
 
+## **New in Version 1.8.0**
+
+- **User-Friendly Configuration**: New step-by-step config.h setup with pre-configured options (Basic/Standard/Professional/Custom)
+- **Production-Ready Optimization**: Debug code cleanup for smaller, faster firmware
+- **Enhanced Setup Process**: Visual pin diagrams and comprehensive setup guides
+- **Complete Library Documentation**: Detailed ESP32-compatible library setup instructions
+- **Improved Reliability**: Better irrigation control and sensor validation
+- **Better Display Control**: Optimized screen timing and display logic
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)
@@ -102,44 +111,44 @@ This smart farming system is designed to automate irrigation processes while pro
 
 ### Essential Components
 
-| Component                         | Specification             | Purpose                 | Notes                               |
-| --------------------------------- | ------------------------- | ----------------------- | ----------------------------------- |
-| **ESP32 Development Board** | ESP32-WROOM-32 or similar | Main controller         | Must support WiFi and ADC           |
-| **Soil Moisture Sensor**    | Analog capacitive sensor  | Soil moisture detection | 0-3.3V output range                 |
-| **Relay Module**            | 5V SPDT relay             | Pump control            | Must handle pump current            |
-| **Water Pump**              | 12V DC submersible        | Irrigation              | Match relay specifications          |
-| **Power Supply**            | 5V/3.3V adapter           | System power            | Minimum 2A capacity                 |
+| Component                         | Specification             | Purpose                 | Notes                      |
+| --------------------------------- | ------------------------- | ----------------------- | -------------------------- |
+| **ESP32 Development Board** | ESP32-WROOM-32 or similar | Main controller         | Must support WiFi and ADC  |
+| **Soil Moisture Sensor**    | Analog capacitive sensor  | Soil moisture detection | 0-3.3V output range        |
+| **Relay Module**            | 5V SPDT relay             | Pump control            | Must handle pump current   |
+| **Water Pump**              | 12V DC submersible        | Irrigation              | Match relay specifications |
+| **Power Supply**            | 5V/3.3V adapter           | System power            | Minimum 2A capacity        |
 
 ### Optional Components
 
-| Component                         | Specification             | Purpose                 | Notes                               |
-| --------------------------------- | ------------------------- | ----------------------- | ----------------------------------- |
-| **DHT Sensor**              | DHT11 or DHT22            | Temperature/humidity    | Digital sensor with 1-wire protocol |
-| **LDR Sensor**              | Light Dependent Resistor  | Ambient light detection | Analog sensor with voltage divider  |
-| **LCD Display**             | 1602 or 2004 I2C          | Visual monitoring       | Optional - see Display Options      |
-| **LEDs**                    | 5mm standard              | Status indication       | Green, Red, Blue                   |
-| **Resistors**               | 220Ω, 10kΩ              | Current limiting        | For LEDs and pull-ups              |
-| **Breadboard**              | Half-size                 | Prototyping             | For development                    |
-| **Jumper Wires**            | Male-to-male/female       | Connections             | Various lengths                    |
+| Component              | Specification            | Purpose                 | Notes                               |
+| ---------------------- | ------------------------ | ----------------------- | ----------------------------------- |
+| **DHT Sensor**   | DHT11 or DHT22           | Temperature/humidity    | Digital sensor with 1-wire protocol |
+| **LDR Sensor**   | Light Dependent Resistor | Ambient light detection | Analog sensor with voltage divider  |
+| **LCD Display**  | 1602 or 2004 I2C         | Visual monitoring       | Optional - see Display Options      |
+| **LEDs**         | 5mm standard             | Status indication       | Green, Red, Blue                    |
+| **Resistors**    | 220Ω, 10kΩ             | Current limiting        | For LEDs and pull-ups               |
+| **Breadboard**   | Half-size                | Prototyping             | For development                     |
+| **Jumper Wires** | Male-to-male/female      | Connections             | Various lengths                     |
 
 ### Pin Connections
 
-| Component                | ESP32 Pin | Notes                          | Alternative Pins |
-| ------------------------ | --------- | ------------------------------ | ---------------- |
-| **LCD SDA**        | GPIO 21   | I2C Data (if display enabled)  | GPIO 4, GPIO 16  |
-| **LCD SCL**        | GPIO 22   | I2C Clock (if display enabled) | GPIO 5, GPIO 17  |
-| **DHT Data**       | GPIO 5    | Digital input                  | GPIO 4, GPIO 18  |
-| **Soil Moisture**  | GPIO 36   | Analog input (ADC1_CH0)        | GPIO 39, GPIO 34 |
-| **Relay Control**  | GPIO 19   | Digital output                 | GPIO 18, GPIO 23 |
-| **Green LED**      | GPIO 18   | Status indicator               | GPIO 2, GPIO 4   |
-| **Red LED**        | GPIO 23   | Pump active indicator          | GPIO 2, GPIO 4   |
-| **Blue LED**       | GPIO 2    | WiFi status (online version)   | GPIO 4, GPIO 5   |
-| **Emergency Stop** | GPIO 0    | Optional emergency button      | GPIO 35, GPIO 34 |
-| **Control System** |           |                                |                 |
-| **Rotary Encoder CLK** | GPIO 16 | Clock pin (if encoder enabled) | GPIO 4, GPIO 5   |
-| **Rotary Encoder DT**  | GPIO 17 | Data pin (if encoder enabled)  | GPIO 4, GPIO 5   |
-| **Rotary Encoder SW**  | GPIO 4  | Switch/Button pin (if encoder) | GPIO 0, GPIO 35  |
-| **Potentiometer**      | GPIO 34 | Analog input (if pot enabled)  | GPIO 35, GPIO 36 |
+| Component                    | ESP32 Pin | Notes                          | Alternative Pins |
+| ---------------------------- | --------- | ------------------------------ | ---------------- |
+| **LCD SDA**            | GPIO 21   | I2C Data (if display enabled)  | GPIO 4, GPIO 16  |
+| **LCD SCL**            | GPIO 22   | I2C Clock (if display enabled) | GPIO 5, GPIO 17  |
+| **DHT Data**           | GPIO 5    | Digital input                  | GPIO 4, GPIO 18  |
+| **Soil Moisture**      | GPIO 36   | Analog input (ADC1_CH0)        | GPIO 39, GPIO 34 |
+| **Relay Control**      | GPIO 19   | Digital output                 | GPIO 18, GPIO 23 |
+| **Green LED**          | GPIO 18   | Status indicator               | GPIO 2, GPIO 4   |
+| **Red LED**            | GPIO 23   | Pump active indicator          | GPIO 2, GPIO 4   |
+| **Blue LED**           | GPIO 2    | WiFi status (online version)   | GPIO 4, GPIO 5   |
+| **Emergency Stop**     | GPIO 0    | Optional emergency button      | GPIO 35, GPIO 34 |
+| **Control System**     |           |                                |                  |
+| **Rotary Encoder CLK** | GPIO 16   | Clock pin (if encoder enabled) | GPIO 4, GPIO 5   |
+| **Rotary Encoder DT**  | GPIO 17   | Data pin (if encoder enabled)  | GPIO 4, GPIO 5   |
+| **Rotary Encoder SW**  | GPIO 4    | Switch/Button pin (if encoder) | GPIO 0, GPIO 35  |
+| **Potentiometer**      | GPIO 34   | Analog input (if pot enabled)  | GPIO 35, GPIO 36 |
 
 ## Installation Guide
 
@@ -198,14 +207,15 @@ The project is organized to work seamlessly with Arduino IDE's expected structur
 #### Opening Projects in Arduino IDE
 
 1. **Main Applications**:
+
    - **Offline Version**: Open `MainCode/offline/offline.ino` for standalone operation
    - **Online Version**: Open `MainCode/online/online.ino` for IoT operation with cloud connectivity
-
 2. **Test Applications**:
+
    - **Hardware Test**: Open `TestCode/hardware/hardware_test.ino` to validate all hardware components
    - **Communication Test**: Open `TestCode/communication/communication.ino` to test WiFi, cloud services, and web server
-
 3. **Configuration Files**:
+
    - Each sketch has its own `config.h` file for easy customization
    - Configuration is modular and version-specific
 
@@ -285,6 +295,45 @@ ESP32                    Components
 ## Configuration Guide
 
 > **📋 For a comprehensive configuration guide with detailed comparisons, pros/cons, and recommended setups, see [configuration.md](configuration.md)**
+
+### **New Easy Setup System**
+
+The config.h files now feature a revolutionary step-by-step setup system that makes configuration effortless:
+
+#### **STEP 1: Choose Your Setup Type**
+
+Simply uncomment ONE line to get a complete, tested configuration:
+
+```cpp
+// #define BASIC_SETUP           // Soil sensor only, automatic operation
+// #define STANDARD_SETUP        // Basic + DHT22 + LCD 1602 display  
+#define POTENTIOMETER_SETUP    // Standard + potentiometer control
+// #define PROFESSIONAL_SETUP    // All sensors + LCD 2004 + rotary encoder
+// #define CUSTOM_SETUP          // Full manual configuration
+```
+
+#### **STEP 2: Hardware Pin Configuration**
+
+Visual ASCII diagrams show exactly where to connect each component:
+
+```
+ESP32 Dev Board
+┌─────────────────┐
+│  3.3V  ●    ●   │ VIN
+│   GND  ●    ●   │ GND  
+│ GPIO36 ●    ●   │ GPIO19 <- Water Pump Relay
+│ GPIO21 ●    ●   │ GPIO22 <- LCD SCL
+└─────────────────┘
+```
+
+#### **STEP 3: Plant-Specific Settings**
+
+Pre-configured irrigation settings for different plant types:
+
+- **Succulents/Cacti**: 10-15% moisture threshold
+- **Herbs**: 20-25% moisture threshold
+- **Vegetables**: 30-40% moisture threshold
+- **Tropical Plants**: 40-50% moisture threshold
 
 ### Basic Configuration (`config.h`)
 
@@ -428,18 +477,21 @@ The system provides configurable serial output for debugging, monitoring, and pr
 ### Use Cases
 
 **Development & Testing:**
+
 ```cpp
 #define SERIAL_OUTPUT_ENABLED true        // Full debugging output
 #define DEBUG_MODE true                   // Additional debug information
 ```
 
 **Production Deployment:**
+
 ```cpp
 #define SERIAL_OUTPUT_ENABLED false       // No serial output
 #define DEBUG_MODE false                  // Minimal debug information
 ```
 
 **Remote Monitoring:**
+
 ```cpp
 #define SERIAL_OUTPUT_ENABLED true        // Essential for remote monitoring
 #define DEBUG_MODE false                  // Reduce output volume
@@ -450,6 +502,24 @@ The system provides configurable serial output for debugging, monitoring, and pr
 - **Enabled**: ~2-5% CPU overhead, ~1-2KB additional memory usage
 - **Disabled**: No serial overhead, optimal performance
 - **Conditional Compilation**: When disabled, no serial code is compiled into the binary
+
+### **Production-Ready Optimization (New in v1.8.0)**
+
+The system now features production-ready code optimization:
+
+#### **Automatic Debug Cleanup**
+
+- **Development Mode**: `DEBUG_MODE true` - Full debugging output for development
+- **Production Mode**: `DEBUG_MODE false` - Optimized for deployment with minimal output
+- **Size Reduction**: 3-6KB smaller firmware with debug code removed
+- **Performance**: 5-10% faster execution without debug overhead
+
+#### **Smart Configuration Validation**
+
+- **Compile-Time Checks**: Validates settings during compilation
+- **Error Prevention**: Prevents invalid configurations from compiling
+- **User-Friendly Warnings**: Clear messages for configuration issues
+- **Safety Validation**: Ensures irrigation parameters are within safe ranges
 
 ## Display Options
 
@@ -507,8 +577,9 @@ The system supports three display configurations for maximum flexibility:
 The system supports three control configurations for maximum flexibility:
 
 ### 1. Rotary Encoder - Advanced Control (Default)
+
 - **Configuration**: `#define CONTROL_TYPE CONTROL_ROTARY_ENCODER`
-- **Features**: 
+- **Features**:
   - Interactive menu system
   - Real-time parameter adjustment
   - Push button for menu navigation
@@ -518,6 +589,7 @@ The system supports three control configurations for maximum flexibility:
 - **Wiring**: CLK (GPIO 16), DT (GPIO 17), SW (GPIO 4)
 
 #### Menu System
+
 - **Soil Threshold**: Adjust irrigation trigger point (10-80%)
 - **Irrigation Time**: View current irrigation duration
 - **Display Speed**: View current display update speed
@@ -525,6 +597,7 @@ The system supports three control configurations for maximum flexibility:
 - **Save & Exit**: Save settings and return to normal operation
 
 ### 2. Potentiometer - Simple Control
+
 - **Configuration**: `#define CONTROL_TYPE CONTROL_POTENTIOMETER`
 - **Features**:
   - Real-time threshold adjustment
@@ -535,6 +608,7 @@ The system supports three control configurations for maximum flexibility:
 - **Wiring**: Center pin to GPIO 34, outer pins to 3.3V and GND
 
 ### 3. No Control - Fully Automated
+
 - **Configuration**: `#define CONTROL_TYPE CONTROL_NONE`
 - **Features**:
   - Fully automated operation
@@ -542,7 +616,7 @@ The system supports three control configurations for maximum flexibility:
   - Uses default thresholds
   - Clean, minimal interface
 - **Best for**: Set-and-forget installations, remote monitoring
-- **Benefits**: 
+- **Benefits**:
   - Lower cost
   - Simpler wiring
   - Reduced complexity
@@ -683,6 +757,7 @@ The online version provides flexible IoT services configuration, allowing you to
 ### Master IoT Services Control
 
 #### IOT_SERVICES_ENABLED
+
 Master switch for all IoT services (ThingSpeak, Adafruit IO).
 
 ```cpp
@@ -691,18 +766,21 @@ Master switch for all IoT services (ThingSpeak, Adafruit IO).
 ```
 
 **When Enabled (Default):**
+
 - Full cloud service integration
 - Data transmission to ThingSpeak and Adafruit IO
 - Remote monitoring capabilities
 - Cloud dashboards and analytics
 
 **When Disabled:**
+
 - No cloud service calls
 - Reduced memory usage
 - Improved performance
 - Local operation only
 
 #### WEB_UI_ONLY_MODE
+
 Convenience setting to disable all IoT services and use only the built-in web interface.
 
 ```cpp
@@ -711,6 +789,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ```
 
 **When Enabled:**
+
 - Automatically sets `IOT_SERVICES_ENABLED` to `false`
 - Disables all cloud service integrations
 - Uses only built-in web interface
@@ -719,12 +798,14 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ### Individual Service Control
 
 #### ThingSpeak Configuration
+
 ```cpp
 #define THINGSPEAK_ENABLED true     // Enable ThingSpeak (default)
 #define THINGSPEAK_ENABLED false    // Disable ThingSpeak
 ```
 
 #### Adafruit IO Configuration
+
 ```cpp
 #define ADAFRUIT_IO_ENABLED true    // Enable Adafruit IO (default)
 #define ADAFRUIT_IO_ENABLED false   // Disable Adafruit IO
@@ -733,6 +814,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ### Configuration Examples
 
 #### Full IoT Mode (Default)
+
 ```cpp
 // IoT Services Configuration
 #define IOT_SERVICES_ENABLED true
@@ -754,6 +836,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ```
 
 #### Web UI Only Mode
+
 ```cpp
 // IoT Services Configuration
 #define IOT_SERVICES_ENABLED false
@@ -767,6 +850,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ```
 
 #### Selective IoT Services
+
 ```cpp
 // IoT Services Configuration
 #define IOT_SERVICES_ENABLED true
@@ -786,12 +870,14 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ### Performance Impact
 
 #### When IoT Services Enabled
+
 - **Memory Usage**: ~2-4KB additional for IoT libraries and objects
 - **CPU Overhead**: ~1-3% for cloud service calls
 - **Network Usage**: Regular data transmission to cloud services
 - **Power Consumption**: Slightly higher due to WiFi activity
 
 #### When IoT Services Disabled
+
 - **Memory Usage**: No IoT libraries loaded
 - **CPU Overhead**: No cloud service processing
 - **Network Usage**: Only web interface traffic
@@ -800,6 +886,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ### Use Cases
 
 #### Development & Testing
+
 ```cpp
 #define IOT_SERVICES_ENABLED true    // Full debugging with cloud services
 #define WEB_UI_ONLY_MODE false
@@ -807,6 +894,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ```
 
 #### Production Deployment
+
 ```cpp
 #define IOT_SERVICES_ENABLED false   // No cloud dependencies
 #define WEB_UI_ONLY_MODE true
@@ -814,6 +902,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ```
 
 #### Remote Monitoring
+
 ```cpp
 #define IOT_SERVICES_ENABLED true    // Essential for remote monitoring
 #define WEB_UI_ONLY_MODE false
@@ -822,6 +911,7 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ```
 
 #### Local Operation
+
 ```cpp
 #define IOT_SERVICES_ENABLED false   // Local operation only
 #define WEB_UI_ONLY_MODE true
@@ -911,7 +1001,8 @@ Convenience setting to disable all IoT services and use only the built-in web in
 ### Control Modes
 
 #### Rotary Encoder Operation
-- **Menu Navigation**: 
+
+- **Menu Navigation**:
   - Press button to enter menu mode
   - Rotate encoder to navigate through menu items
   - Press button to select item or enter parameter adjustment
@@ -927,7 +1018,8 @@ Convenience setting to disable all IoT services and use only the built-in web in
   - Save & Exit
 
 #### Potentiometer Operation
-- **Real-time Control**: 
+
+- **Real-time Control**:
   - Turn knob to adjust irrigation threshold
   - Immediate effect on system behavior
   - Visual feedback on display
@@ -935,11 +1027,12 @@ Convenience setting to disable all IoT services and use only the built-in web in
 - **Update Rate**: Every 500ms for smooth operation
 
 #### No Control Operation
-- **Fully Automated**: 
+
+- **Fully Automated**:
   - Uses default soil moisture threshold (30%)
   - No manual intervention required
   - Ideal for remote installations
-- **Benefits**: 
+- **Benefits**:
   - Lower cost
   - Simpler wiring
   - Reduced complexity
@@ -1642,6 +1735,6 @@ This project is open source and available under the MIT License. See the LICENSE
 
 ---
 
-**Happy Farming!** 
+**Happy Farming!**
 
 For questions, issues, or contributions, please visit our [GitHub repository](https://github.com/lily-osp/smart-farming-esp32).

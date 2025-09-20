@@ -16,7 +16,7 @@
  * - Internet connectivity
  * 
  * Author: Azzar Budiyanto
- * Version: 1.0.0
+ * Version: 1.8.0
  * Date: 2024
  */
 
