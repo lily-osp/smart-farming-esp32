@@ -79,8 +79,11 @@ struct SystemState {
     bool inMenuMode = false;
   #elif CONTROL_TYPE == CONTROL_POTENTIOMETER
     int potentiometerValue = 0;
-    int adjustedThreshold = SOIL_MOISTURE_THRESHOLD;
     unsigned long lastPotentiometerRead = 0;
+    int potentiometerSamples[POTENTIOMETER_SMOOTHING_SAMPLES] = {0};
+    int sampleIndex = 0;
+    int lastStableThreshold = SOIL_MOISTURE_THRESHOLD;
+    bool thresholdChanged = false;
   #endif
 } systemState;
 
@@ -435,22 +438,26 @@ void readSensors() {
   // Validate sensor readings
   validateSensorReadings(temperature, humidity, soilMoisturePercent, lightLevelPercent);
   
-  // Only update system state if readings are valid
-  if (sensorValidation.temperatureValid && sensorValidation.humidityValid && sensorValidation.soilMoistureValid) {
+  // Always update soil moisture (critical for irrigation), but validate others
+  systemState.soilMoistureRaw = soilMoistureRaw;
+  systemState.soilMoisturePercent = soilMoisturePercent;
+  systemState.lightLevelRaw = lightLevelRaw;
+  systemState.lightLevelPercent = lightLevelPercent;
+  
+  // Only update DHT readings if valid (non-critical for irrigation)
+  if (sensorValidation.temperatureValid && sensorValidation.humidityValid) {
     systemState.temperature = temperature;
     systemState.humidity = humidity;
-    systemState.soilMoistureRaw = soilMoistureRaw;
-    systemState.soilMoisturePercent = soilMoisturePercent;
-    systemState.lightLevelRaw = lightLevelRaw;
-    systemState.lightLevelPercent = lightLevelPercent;
-    
     // Reset sensor error counter on successful reading
     systemState.sensorErrors = 0;
     sensorValidation.disconnectCount = 0;
   } else {
     systemState.sensorErrors++;
-    #if SERIAL_OUTPUT_ENABLED
-      Serial.println("Warning: Invalid sensor readings detected!");
+    #if SERIAL_OUTPUT_ENABLED && DEBUG_MODE
+      Serial.println("Warning: Invalid DHT sensor readings detected!");
+      Serial.println("  Temperature valid: " + String(sensorValidation.temperatureValid));
+      Serial.println("  Humidity valid: " + String(sensorValidation.humidityValid));
+      Serial.println("  Soil moisture valid: " + String(sensorValidation.soilMoistureValid));
     #endif
   }
   
@@ -458,10 +465,18 @@ void readSensors() {
   if (DEBUG_MODE) {
     #if SERIAL_OUTPUT_ENABLED
       Serial.println("Sensor Readings:");
-      Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
-      Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
+      #if DHT_ENABLED
+        Serial.println("  Temperature: " + String(temperature, 1) + "°C (Valid: " + String(sensorValidation.temperatureValid ? "Yes" : "No") + ")");
+        Serial.println("  Humidity: " + String(humidity, 1) + "% (Valid: " + String(sensorValidation.humidityValid ? "Yes" : "No") + ")");
+      #else
+        Serial.println("  DHT Sensor: Disabled");
+      #endif
       Serial.println("  Soil Moisture: " + String(soilMoisturePercent) + "% (Valid: " + String(sensorValidation.soilMoistureValid ? "Yes" : "No") + ")");
-      Serial.println("  Light Level: " + String(lightLevelPercent) + "% (Valid: " + String(sensorValidation.lightLevelValid ? "Yes" : "No") + ")");
+      #if LDR_ENABLED
+        Serial.println("  Light Level: " + String(lightLevelPercent) + "% (Valid: " + String(sensorValidation.lightLevelValid ? "Yes" : "No") + ")");
+      #else
+        Serial.println("  LDR Sensor: Disabled");
+      #endif
     #endif
   }
 }
@@ -505,9 +520,17 @@ void displaySensorData() {
   #if DISPLAY_ENABLED
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Temp: " + String(systemState.temperature, 1) + "C");
-    lcd.setCursor(0, 1);
-    lcd.print("Hum: " + String(systemState.humidity, 1) + "%");
+    
+    // Display temperature and humidity (if DHT enabled)
+    #if DHT_ENABLED
+      lcd.print("Temp: " + String(systemState.temperature, 1) + "C");
+      lcd.setCursor(0, 1);
+      lcd.print("Hum: " + String(systemState.humidity, 1) + "%");
+    #else
+      lcd.print("Smart Farming");
+      lcd.setCursor(0, 1);
+      lcd.print("DHT Disabled");
+    #endif
     
     delay(DISPLAY_SCROLL_DELAY);
     
@@ -515,7 +538,14 @@ void displaySensorData() {
     lcd.setCursor(0, 0);
     lcd.print("Soil: " + String(systemState.soilMoisturePercent) + "%");
     lcd.setCursor(0, 1);
-    lcd.print("Light: " + String(systemState.lightLevelPercent) + "%");
+    
+    // Only show light level if LDR is enabled
+    #if LDR_ENABLED
+      lcd.print("Light: " + String(systemState.lightLevelPercent) + "%");
+    #else
+      // Show system status instead of light level
+      lcd.print("Status: " + String(systemState.systemOK ? "OK" : "ERROR"));
+    #endif
   #endif
 }
 
@@ -581,6 +611,25 @@ void controlIrrigation() {
   
   // Check if system is OK
   bool systemHealthy = systemState.systemOK && (systemState.sensorErrors < MAX_SENSOR_ERRORS);
+  
+  // Debug output to help identify why pump doesn't activate
+  #if SERIAL_OUTPUT_ENABLED && DEBUG_MODE
+    if (needsIrrigation) {
+      Serial.println("=== IRRIGATION CONTROL DEBUG ===");
+      Serial.println("Soil Moisture: " + String(systemState.soilMoisturePercent) + "% (Threshold: " + String(threshold) + "%)");
+      Serial.println("Needs Irrigation: " + String(needsIrrigation ? "YES" : "NO"));
+      Serial.println("Cooldown Expired: " + String(cooldownExpired ? "YES" : "NO"));
+      Serial.println("Within Daily Limit: " + String(withinDailyLimit ? "YES (" + String(systemState.dailyIrrigations) + "/" + String(MAX_DAILY_IRRIGATIONS) + ")" : "NO"));
+      Serial.println("System Healthy: " + String(systemHealthy ? "YES" : "NO (SystemOK: " + String(systemState.systemOK) + ", Errors: " + String(systemState.sensorErrors) + ")"));
+      Serial.println("Pump Not Active: " + String(!systemState.pumpActive ? "YES" : "NO"));
+      
+      if (!cooldownExpired) {
+        unsigned long remainingCooldown = IRRIGATION_COOLDOWN - (currentTime - systemState.lastIrrigation);
+        Serial.println("Remaining Cooldown: " + String(remainingCooldown / 1000) + " seconds");
+      }
+      Serial.println("================================");
+    }
+  #endif
   
   // Start irrigation if all conditions are met
   if (needsIrrigation && cooldownExpired && withinDailyLimit && systemHealthy && !systemState.pumpActive) {
@@ -937,22 +986,42 @@ void displayAllInfo() {
   #if DISPLAY_TYPE == DISPLAY_LCD_2004
     lcd.clear();
     
-    // Line 1: Temperature and Humidity
+    // Line 1: Temperature and Humidity (if DHT enabled)
     lcd.setCursor(0, 0);
-    lcd.print("T:" + String(systemState.temperature, 1) + "C H:" + String(systemState.humidity, 1) + "%");
+    #if DHT_ENABLED
+      lcd.print("T:" + String(systemState.temperature, 1) + "C H:" + String(systemState.humidity, 1) + "%");
+    #else
+      lcd.print("Smart Farming System");
+    #endif
     
-    // Line 2: Soil Moisture and Light Level
+    // Line 2: Soil Moisture and additional info
     lcd.setCursor(0, 1);
-    lcd.print("Soil:" + String(systemState.soilMoisturePercent) + "% Light:" + String(systemState.lightLevelPercent) + "%");
+    lcd.print("Soil:" + String(systemState.soilMoisturePercent) + "%");
+    
+    #if LDR_ENABLED
+      // Show light level if LDR is enabled
+      lcd.print(" Light:" + String(systemState.lightLevelPercent) + "%");
+    #else
+      // Show threshold instead of light level
+      lcd.print(" Thresh:" + String(systemState.adjustedThreshold) + "%");
+    #endif
     
     // Line 3: Pump Status and System Status
     lcd.setCursor(0, 2);
     lcd.print("Pump:" + String(systemState.pumpActive ? "ON" : "OFF") + " Status:" + String(systemState.systemOK ? "OK" : "ERROR"));
     
-    // Line 4: Daily Irrigations and Uptime
+    // Line 4: Daily Irrigations and Control Type
     lcd.setCursor(0, 3);
-    unsigned long uptime = currentTime / 1000;
-    lcd.print("Daily:" + String(systemState.dailyIrrigations) + " Up:" + String(uptime / 60) + "m");
+    lcd.print("Daily:" + String(systemState.dailyIrrigations));
+    
+    #if CONTROL_TYPE == CONTROL_POTENTIOMETER
+      lcd.print(" POT:" + String(systemState.potentiometerValue));
+    #elif CONTROL_TYPE == CONTROL_ROTARY_ENCODER
+      lcd.print(" ENC:Menu");
+    #else
+      unsigned long uptime = currentTime / 1000;
+      lcd.print(" Up:" + String(uptime / 60) + "m");
+    #endif
   #endif
 }
 
@@ -1015,9 +1084,22 @@ void initializeControl() {
     systemState.potentiometerValue = 0;
     systemState.adjustedThreshold = SOIL_MOISTURE_THRESHOLD;
     systemState.lastPotentiometerRead = currentTime;
+    systemState.sampleIndex = 0;
+    systemState.lastStableThreshold = SOIL_MOISTURE_THRESHOLD;
+    systemState.thresholdChanged = false;
+    
+    // Initialize smoothing array with initial reading
+    int initialReading = analogRead(POTENTIOMETER_PIN);
+    for (int i = 0; i < POTENTIOMETER_SMOOTHING_SAMPLES; i++) {
+      systemState.potentiometerSamples[i] = initialReading;
+    }
+    systemState.potentiometerValue = initialReading;
     
     #if SERIAL_OUTPUT_ENABLED
       Serial.println("Potentiometer control initialized");
+      Serial.println("Initial ADC reading: " + String(initialReading));
+      Serial.println("Smoothing samples: " + String(POTENTIOMETER_SMOOTHING_SAMPLES));
+      Serial.println("Hysteresis: " + String(POTENTIOMETER_HYSTERESIS) + "%");
     #endif
     
   #else
@@ -1137,26 +1219,80 @@ void handleRotaryEncoder() {
 void handlePotentiometer() {
   #if CONTROL_TYPE == CONTROL_POTENTIOMETER
     if (currentTime - systemState.lastPotentiometerRead >= POTENTIOMETER_UPDATE_INTERVAL) {
-      // Read potentiometer value (0-4095)
-      systemState.potentiometerValue = analogRead(POTENTIOMETER_PIN);
+      // Read raw potentiometer value (0-4095)
+      int rawValue = analogRead(POTENTIOMETER_PIN);
       
-      // Convert to threshold percentage
-      systemState.adjustedThreshold = map(systemState.potentiometerValue, 0, 4095, 
-                                        POTENTIOMETER_MIN_THRESHOLD, POTENTIOMETER_MAX_THRESHOLD);
+      // Add to smoothing array
+      systemState.potentiometerSamples[systemState.sampleIndex] = rawValue;
+      systemState.sampleIndex = (systemState.sampleIndex + 1) % POTENTIOMETER_SMOOTHING_SAMPLES;
+      
+      // Calculate smoothed average
+      long sum = 0;
+      for (int i = 0; i < POTENTIOMETER_SMOOTHING_SAMPLES; i++) {
+        sum += systemState.potentiometerSamples[i];
+      }
+      int smoothedValue = sum / POTENTIOMETER_SMOOTHING_SAMPLES;
+      
+      // Apply deadband to prevent minor fluctuations
+      if (abs(smoothedValue - systemState.potentiometerValue) > POTENTIOMETER_DEADBAND) {
+        systemState.potentiometerValue = smoothedValue;
+      }
+      
+      // Convert to threshold percentage with improved mapping
+      int newThreshold = map(systemState.potentiometerValue, 0, 4095, 
+                            POTENTIOMETER_MIN_THRESHOLD, POTENTIOMETER_MAX_THRESHOLD);
+      
+      // Apply hysteresis to prevent rapid switching
+      if (abs(newThreshold - systemState.lastStableThreshold) >= POTENTIOMETER_HYSTERESIS) {
+        systemState.adjustedThreshold = newThreshold;
+        systemState.lastStableThreshold = newThreshold;
+        systemState.thresholdChanged = true;
+      }
       
       systemState.lastPotentiometerRead = currentTime;
       
-      // Update display to show current threshold
+      // Update display with enhanced information
       #if DISPLAY_ENABLED
         lcd.clear();
         lcd.setCursor(0, 0);
-        lcd.print("Threshold: " + String(systemState.adjustedThreshold) + "%");
+        lcd.print("Moisture Threshold:");
         lcd.setCursor(0, 1);
-        lcd.print("Pot: " + String(systemState.potentiometerValue));
+        lcd.print(String(systemState.adjustedThreshold) + "% ");
+        
+        // Show current soil moisture for comparison
+        if (systemState.soilMoisturePercent < systemState.adjustedThreshold) {
+          lcd.print("DRY");
+        } else {
+          lcd.print("OK");
+        }
+        
+        #if DISPLAY_TYPE == DISPLAY_LCD_2004
+          lcd.setCursor(0, 2);
+          lcd.print("Current: " + String(systemState.soilMoisturePercent) + "%");
+          lcd.setCursor(0, 3);
+          lcd.print("Pot: " + String(systemState.potentiometerValue));
+        #endif
       #endif
       
-      #if SERIAL_OUTPUT_ENABLED
-        Serial.println("Potentiometer threshold: " + String(systemState.adjustedThreshold) + "%");
+      // Enhanced serial output
+      #if SERIAL_OUTPUT_ENABLED && DEBUG_MODE
+        if (systemState.thresholdChanged) {
+          Serial.println("=== POTENTIOMETER CONTROL ===");
+          Serial.println("Raw ADC: " + String(rawValue));
+          Serial.println("Smoothed: " + String(smoothedValue));
+          Serial.println("Final Value: " + String(systemState.potentiometerValue));
+          Serial.println("Threshold: " + String(systemState.adjustedThreshold) + "%");
+          Serial.println("Current Soil: " + String(systemState.soilMoisturePercent) + "%");
+          Serial.println("Status: " + String(systemState.soilMoisturePercent < systemState.adjustedThreshold ? "NEEDS WATER" : "OK"));
+          Serial.println("=============================");
+          systemState.thresholdChanged = false;
+        }
+      #elif SERIAL_OUTPUT_ENABLED
+        static unsigned long lastPotOutput = 0;
+        if (currentTime - lastPotOutput >= 2000) { // Output every 2 seconds
+          Serial.println("Threshold: " + String(systemState.adjustedThreshold) + "% | Current: " + String(systemState.soilMoisturePercent) + "%");
+          lastPotOutput = currentTime;
+        }
       #endif
     }
   #endif

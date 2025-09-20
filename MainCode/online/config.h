@@ -56,7 +56,10 @@
 
 // Control Type Selection
 // Options: CONTROL_NONE, CONTROL_POTENTIOMETER, CONTROL_ROTARY_ENCODER
-#define CONTROL_TYPE CONTROL_ROTARY_ENCODER
+// CONTROL_POTENTIOMETER: Real-time threshold control with potentiometer
+// CONTROL_ROTARY_ENCODER: Menu-based control with rotary encoder
+// CONTROL_NONE: Fully automated mode (uses fixed threshold from config)
+#define CONTROL_TYPE CONTROL_POTENTIOMETER
 
 // Control Type Definitions
 #define CONTROL_NONE 0
@@ -66,7 +69,10 @@
 // Control-specific Configuration
 #if CONTROL_TYPE == CONTROL_POTENTIOMETER
   #define POTENTIOMETER_PIN 34  // ADC1_CH6 - GPIO34 for potentiometer
-  #define POTENTIOMETER_UPDATE_INTERVAL 500  // Update interval (ms)
+  #define POTENTIOMETER_UPDATE_INTERVAL 100  // Update interval (ms) - faster response
+  #define POTENTIOMETER_SMOOTHING_SAMPLES 5  // Number of samples for averaging
+  #define POTENTIOMETER_HYSTERESIS 2  // Hysteresis value to prevent jittery switching (%)
+  #define POTENTIOMETER_DEADBAND 50   // Deadband around ADC values to ignore minor fluctuations
 #elif CONTROL_TYPE == CONTROL_ROTARY_ENCODER
   #define ENCODER_CLK_PIN 16    // GPIO16 - Clock pin
   #define ENCODER_DT_PIN 17     // GPIO17 - Data pin  
@@ -77,8 +83,8 @@
 #endif
 
 // Common threshold limits for all control types
-#define POTENTIOMETER_MIN_THRESHOLD 10   // Minimum soil moisture threshold (%)
-#define POTENTIOMETER_MAX_THRESHOLD 80  // Maximum soil moisture threshold (%)
+#define POTENTIOMETER_MIN_THRESHOLD 5    // Minimum soil moisture threshold (%) - very dry
+#define POTENTIOMETER_MAX_THRESHOLD 50   // Maximum soil moisture threshold (%) - optimal range
 
 // Control Features
 #define CONTROL_ENABLED (CONTROL_TYPE != CONTROL_NONE)
@@ -162,7 +168,7 @@
 
 // Irrigation Settings
 #define IRRIGATION_DURATION 5000        // Duration of irrigation in milliseconds
-#define IRRIGATION_COOLDOWN 300000       // Cooldown period between irrigations (5 minutes)
+#define IRRIGATION_COOLDOWN 60000        // Cooldown period between irrigations (1 minute) - reduced for testing
 #define MAX_DAILY_IRRIGATIONS 10        // Maximum irrigations per day
 #define MANUAL_IRRIGATION_DURATION 10000 // Duration for manual irrigation (10 seconds)
 
